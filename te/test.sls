@@ -4,101 +4,85 @@
         (te)
         (te utils verify-test-case))
 
-(define basic-features
-  (make-test-case "Basic features"
-    (lambda (run) (run))
-    (lambda (run) (run))
-    (list
-      (make-test #f (lambda () #t))
+(define-test-case (basic-features "Basic features")
+  (lambda (run) (run))
+  (lambda (run) (run))
 
-      (make-test "Dummy test" (lambda () #t))
+  (define-test () #t)
 
-      (make-test "Anonymous tests"
-        (lambda ()
-          (define test-case
-            (make-test-case "Anonymous tests"
-              (lambda (run) (run))
-              (lambda (run) (run))
-              (list
-                (make-test #f (lambda () (= 3 (+ 1 2))))
-                (make-test #f (lambda () (= 42 (* 6 7)))) ) ) )
+  (define-test ("Dummy test") #t)
 
-          (verify-test-case! test-case) ) )
+  (define-test ("Anonymous tests")
+    (define-test-case (test-case "Anonymous tests")
+      (lambda (run) (run))
+      (lambda (run) (run))
 
-      (make-test "Named tests"
-        (lambda ()
-          (define named-tests
-            (make-test-case "named-tests"
-              (lambda (run) (run))
-              (lambda (run) (run))
-              (list
-                (make-test "Add" (lambda () (= 3 (+ 1 2))))
-                (make-test "Mul" (lambda () (= 42 (* 6 7))))
-                (make-test "eq?" (lambda () (eq? 'foo 'foo))) ) ) )
+      (define-test () (= 3 (+ 1 2)))
+      (define-test () (= 42 (* 6 7))) )
 
-          (verify-test-case! named-tests) ) ) ) ) )
+    (verify-test-case! test-case) )
+
+  (define-test ("Named tests")
+    (define-test-case (named-tests)
+      (lambda (run) (run))
+      (lambda (run) (run))
+
+      (define-test ("Add") (= 3 (+ 1 2)))
+      (define-test ("Mul") (= 42 (* 6 7)))
+      (define-test ("eq?") (eq? 'foo 'foo)) )
+
+    (verify-test-case! named-tests) ) )
 
 (verify-test-case! basic-features)
 
-(define fixtures
-  (make-test-case "Fixtures"
-    (lambda (run) (run))
-    (lambda (run) (run))
-    (list
-      (make-test "Test definitions"
-        (lambda ()
-          (define test-definitions
-            (make-test-case "Test definitions"
-              (lambda (run) (run))
-              (lambda (run) (run))
-              (list
-                (make-test "Access"
-                  (lambda ()
-                    (define x 42)
-                    (define y -6)
-                    (= x 42) ) )
+(define-test-case (fixtures "Fixtures")
+  (lambda (run) (run))
+  (lambda (run) (run))
 
-                (make-test "Modification"
-                  (lambda ()
-                    (define x 42)
-                    (define y -6)
-                    (set! x 56)
-                    (= x 56) ) )
+  (define-test ("Test definitions")
+    (define-test-case (test-definitions "Test definitions")
+      (lambda (run) (run))
+      (lambda (run) (run))
 
-                (make-test "Access again"
-                  (lambda ()
-                    (define x 42)
-                    (define y -6)
-                    (= x (* y -7)) ) ) ) ) )
+      (define-test ("Access")
+        (define x 42)
+        (define y -6)
+        (= x 42) )
 
-          (verify-test-case! test-definitions) ) )
+      (define-test ("Modification")
+        (define x 42)
+        (define y -6)
+        (set! x 56)
+        (= x 56) )
 
-      (make-test "Test wrappers"
-        (lambda ()
-          (define test-wrappers
-            (make-test-case "Test wrappers"
-              (lambda (run) (run))
-              (lambda (run) (run 1 2 3))
-              (list
-                (make-test "Access"
-                  (lambda (x y z)
-                    (= 6 (+ x y z)) ) ) ) ) )
+      (define-test ("Access again")
+        (define x 42)
+        (define y -6)
+        (= x (* y -7)) ) )
 
-          (verify-test-case! test-wrappers) ) )
+    (verify-test-case! test-definitions) )
 
-      (make-test "Fixture wrappers"
-        (lambda ()
-          (define outer-x 42)
+  (define-test ("Test wrappers")
+    (define-test-case (test-wrappers "Test wrappers")
+      (lambda (run) (run))
+      (lambda (run) (run 1 2 3))
 
-          (define fixture-wrappers
-            (make-test-case "Fixture wrappers"
-              (lambda (run) (set! outer-x 56) (run))
-              (lambda (run) (run))
-              (list
-                (make-test "access"
-                  (lambda ()
-                    (= outer-x 56) ) ) ) ) )
+      (make-test "Access"
+        (lambda (x y z)
+          (= 6 (+ x y z)) ) ) )
 
-          (verify-test-case! fixture-wrappers) ) ) ) ) )
+    (verify-test-case! test-wrappers) )
+
+  (define-test ("Fixture wrappers")
+    (define outer-x 42)
+
+    (define-test-case (fixture-wrappers "Fixture wrappers")
+      (lambda (run) (set! outer-x 56) (run))
+      (lambda (run) (run))
+
+      (define-test ("access")
+        (= outer-x 56) ) )
+
+    (verify-test-case! fixture-wrappers) ) )
 
 (verify-test-case! fixtures)

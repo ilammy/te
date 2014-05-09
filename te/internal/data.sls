@@ -9,7 +9,9 @@
 
           make-test
             test-name
-            test-body)
+            test-body
+
+          test? test-case?)
 
   (import (rnrs base)
           (rnrs records syntactic))
