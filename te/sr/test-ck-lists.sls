@@ -8,12 +8,8 @@
         (te sr ck-lists)
         (te sr ck-predicates))
 
-(define-test-case (ck-lists "CK functions for lists")
-  (lambda (run) (run))
-  (lambda (run) (run))
+(define-test-case (ck-lists:cons "CK functions for lists: $cons")
 
-  ;; $cons
-  ;;
   (define-test ("$cons pair")
     (equal? '(1 . 2)
       ($ ($quote ($cons '1 '2))) ) )
@@ -21,9 +17,13 @@
   (define-test ("$cons list")
     (equal? '(a b c)
       ($ ($quote ($cons 'a ($cons 'b ($cons 'c '()))))) ) )
+)
+(verify-test-case! ck-lists:cons)
 
-  ;; $map
-  ;;
+; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ;
+
+(define-test-case (ck-lists:map "CK functions for lists: $map")
+
   (define-test ("$map empty")
     (equal? '()
       ($ ($quote ($map '$symbol? '()))) ) )
@@ -32,8 +32,16 @@
     (equal? '((1 2) (x y) (r))
       ($ ($quote ($map '$reverse '((2 1) (y x) (r))))) ) )
 
-  ;; $reverse
-  ;;
+  (define-test ("$map partial")
+    (equal? '((x 1) (x 2) (x 3))
+      ($ ($quote ($map '($cons 'x) '((1) (2) (3))))) ) )
+)
+(verify-test-case! ck-lists:map)
+
+; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ;
+
+(define-test-case (ck-lists:reverse "CK functions for lists: $reverse")
+
   (define-test ("$reverse empty")
     (equal? '()
       ($ ($quote ($reverse '()))) ) )
@@ -45,9 +53,13 @@
   (define-test ("$reverse")
     (equal? '(x y z)
       ($ ($quote ($reverse '(z y x)))) ) )
+)
+(verify-test-case! ck-lists:reverse)
 
-  ;; $span
-  ;;
+; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ;
+
+(define-test-case (ck-lists:span "CK functions for lists: $span")
+
   (define-test ("$span empty")
     (equal? '(() ())
       ($ ($quote ($span '$symbol? '()))) ) )
@@ -62,6 +74,6 @@
 
   (define-test ("$span no second")
     (equal? '((a b c) ())
-      ($ ($quote ($span '$symbol? '(a b c)))) ) ) )
-
-(verify-test-case! ck-lists)
+      ($ ($quote ($span '$symbol? '(a b c)))) ) )
+)
+(verify-test-case! ck-lists:span)

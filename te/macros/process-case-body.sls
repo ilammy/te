@@ -5,35 +5,41 @@
 
   (import (rnrs base)
           (te macros define-test)
+          (te macros define-wrappers)
           (te internal data)
           (te sr ck)
           (te sr ck-lists))
 
   (begin
 
-    (define-syntax $define-test?
-      (syntax-rules (quote define-test make-test)
-        ((_ s '(define-test ignored ...)) ($ s '#t))
-        ((_ s '(make-test ignored ...))   ($ s '#t)) ; temp
-        ((_ s 'anything-else)             ($ s '#f)) ) )
-
-    (define-syntax $split-case-body
-      (syntax-rules (quote)
-        ((_ s 'body) ($ s ($map '$reverse ($span '$define-test? ($reverse 'body))))) ) )
-
-    (define-syntax $wrap-test
-      (syntax-rules (quote define-test make-test)
-        ((_ s '(define-test name-spec body1 body2 ...))
-         ($ s ($define-test 'name-spec '(body1 body2 ...))) )
-        ((_ s '(make-test ignored ...)) ; temp
-         ($ s '(make-test ignored ...)) ) ) )
-
     (define-syntax $process-case-body
       (syntax-rules (quote)
-        ((_ s 'body) ($ s ($process-case-body '1 ($split-case-body 'body))))
-        ((_ s '1 '(define-tests other))
-         ($ s ($process-case-body '2 'other ($map '$wrap-test 'define-tests))) )
-        ((_ s '2 '(other ...) '(tests ...))
-         ($ s '(other ... (list tests ...))) ) ) )
+        ((_ s 'body)
+         ($ s ($process-case-body '1 ($span '$define-wrapper? 'body))) )
+
+        ((_ s '1 '(case-configuration test-definitions))
+         ($ s ($process-case-body '2
+                ($ensure-default-wrappers
+                  ($reorder-and-treat-wrappers 'case-configuration) )
+                'test-definitions ) ) )
+
+        ((_ s '2 '(case-wrapper test-wrapper) 'test-definitions)
+         ($ s ($process-case-body '3
+                ($define-case-wrapper 'case-wrapper)
+                ($define-test-wrapper 'test-wrapper)
+                ($extract-test-parameters 'test-wrapper)
+                'test-definitions )) )
+
+        ((_ s '3 'case-wrapper-lambda 'test-wrapper-lambda
+                 'test-parameters 'test-definitions )
+         ($ s ($process-case-body '4
+                'case-wrapper-lambda
+                'test-wrapper-lambda
+                ($map '($define-test 'test-parameters) 'test-definitions) )) )
+
+        ((_ s '4 'case-wrapper-lambda 'test-wrapper-lambda '(tests ...))
+         ($ s '(case-wrapper-lambda
+                test-wrapper-lambda
+                (list tests ...))) ) ) )
 
 ) )

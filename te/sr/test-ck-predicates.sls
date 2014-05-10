@@ -6,9 +6,7 @@
         (te sr ck)
         (te sr ck-predicates))
 
-(define-test-case (ck-predicates "CK predicate functions")
-  (lambda (run) (run))
-  (lambda (run) (run))
+(define-test-case (ck-predicates:symbol? "CK predicate functions: $symbol?")
 
   (define-test ("$symbol? symbols")
     (equal? #t
@@ -36,6 +34,6 @@
 
   (define-test ("$symbol? bool")
     (equal? #f
-      ($ ($symbol? '#f)) ) ) )
-
-(verify-test-case! ck-predicates)
+      ($ ($symbol? '#f)) ) )
+)
+(verify-test-case! ck-predicates:symbol?)

@@ -15,10 +15,11 @@
 
     (define-syntax $map
       (syntax-rules (quote)
-        ((_ s 'proc 'list)                ($ s ($map 'proc 'list '())))
-        ((_ s 'proc '()      'result)     ($ s 'result))
-        ((_ s 'proc '(a . d) 'result)     ($ s ($map 'proc 'd 'result (proc 'a))))
-        ((_ s 'proc 'd '(result ...) 'aa) ($ s ($map 'proc 'd '(result ... aa)))) ) )
+        ((_ s 'proc    'list)                ($ s ($map 'proc 'list '())))
+        ((_ s 'proc    '()      'result)     ($ s 'result))
+        ((_ s '(p ...) '(a . d) 'result)     ($ s ($map '(p ...) 'd 'result (p ... 'a))))
+        ((_ s 'proc    '(a . d) 'result)     ($ s ($map 'proc    'd 'result (proc 'a))))
+        ((_ s 'proc    'd '(result ...) 'aa) ($ s ($map 'proc    'd '(result ... aa)))) ) )
 
     (define-syntax $reverse
       (syntax-rules (quote)
