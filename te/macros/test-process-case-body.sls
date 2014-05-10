@@ -57,6 +57,37 @@
                (define-test () 3) (define-test () 4)) ) )) )
 
     (valid-test-case-body? processed 4) )
+
+  (define-test ("define-test + fixture")
+    (define processed
+      ($ ($cons 'list
+           ($process-case-body
+             '((define-fixture (define some 'x))
+               (define-test () 1) (define-test () 2)) ) )) )
+
+    (valid-test-case-body? processed 2) )
+
+  (define-test ("define-test + fixture + wrappers 1")
+    (define processed
+      ($ ($cons 'list
+           ($process-case-body
+             '((define-case-wrapper (run) (cons 1 2) (run))
+               (define-fixture (define some 'x))
+               (define-test-wrapper (run) (cons 3 4) (run))
+               (define-test () 1) (define-test () 2)) ) )) )
+
+    (valid-test-case-body? processed 2) )
+
+  (define-test ("define-test + fixture + wrappers 2")
+    (define processed
+      ($ ($cons 'list
+           ($process-case-body
+             '((define-fixture (define some 'x))
+               (define-test-wrapper (run) (cons 3 4) (run))
+               (define-case-wrapper (run) (cons 1 2) (run))
+               (define-test () 1)) ) )) )
+
+    (valid-test-case-body? processed 1) )
 )
 (verify-test-case! test-$process-case-body:syntax)
 
@@ -103,3 +134,73 @@
       ((test-body test) 6 7) ) )
 )
 (verify-test-case! test-$process-case-body:wrapper-handling)
+
+; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ;
+
+(define-test-case (test-$process-case-body:fixture-handling)
+
+  (define-fixture
+    (define (all-test-pass? processed-case-body)
+      (let ((run   (list-ref processed-case-body 1))
+            (tests (list-ref processed-case-body 2)))
+        (define (test-passed? test)
+          (run (test-body test)) )
+        (every test-passed? tests) ) ) )
+
+  (define-test ("fixture normal definitions")
+    (define processed
+      ($ ($cons 'list
+           ($process-case-body
+             '((define-fixture
+                 (define a 10)
+                 (define b 20)
+                 (define (dup x) (* 2 x)) )
+               (define-test () (= 60 (dup (+ a b))))
+               (define-test () (= a (- b a)))) ) )) )
+
+    (all-test-pass? processed) )
+
+  (define-test ("fixture mutation")
+    (define processed
+      ($ ($cons 'list
+           ($process-case-body
+             '((define-fixture (define a 10))
+               (define-test () (= a 10))
+               (define-test () (set! a 20) (= a 20))
+               (define-test () (= a 10))) ) )) )
+
+    (all-test-pass? processed) )
+
+  (define-test ("fixture macro definitions")
+    (define processed
+      ($ ($cons 'list
+           ($process-case-body
+             '((define-fixture
+                 (define-syntax dup
+                   (syntax-rules ()
+                     ((_ x) (* 2 x)) ) ) )
+               (define-test () (= 40 (dup 20)))) ) )) )
+
+    (all-test-pass? processed) )
+
+  (define-test ("fixture + parameters bindings")
+    (define processed
+      ($ ($cons 'list
+           ($process-case-body
+             '((define-test-wrapper (run foo) (run 20))
+               (define-fixture (define bar 10))
+               (define-test () (= 30 (+ foo bar)))) ) )) )
+
+    (all-test-pass? processed) )
+
+  (define-test ("fixture binding priority over parameters")
+    (define processed
+      ($ ($cons 'list
+           ($process-case-body
+             '((define-test-wrapper (run foo) (run 20))
+               (define-fixture (define foo 10))
+               (define-test () (= 10 foo))) ) )) )
+
+    (all-test-pass? processed) )
+)
+(verify-test-case! test-$process-case-body:fixture-handling)

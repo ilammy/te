@@ -33,20 +33,18 @@
 
   (define-test ("Test definitions")
     (define-test-case (test-definitions "Test definitions")
-      (define-test ("Access")
+      (define-fixture
         (define x 42)
-        (define y -6)
+        (define y -6) )
+
+      (define-test ("Access")
         (= x 42) )
 
       (define-test ("Modification")
-        (define x 42)
-        (define y -6)
         (set! x 56)
         (= x 56) )
 
       (define-test ("Access again")
-        (define x 42)
-        (define y -6)
         (= x (* y -7)) )
     )
     (verify-test-case! test-definitions) )

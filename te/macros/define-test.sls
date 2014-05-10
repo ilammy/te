@@ -25,17 +25,19 @@
                                 ''name ))) ) )
     (define-syntax $make-test
       (syntax-rules (quote)
-        ((_ s 'name '(args ...) '(body1 body2 ...))
+        ((_ s 'name '(args ...) '(fix-defs ...) '(body1 body2 ...))
          ($ s '(make-test name
                  (lambda (args ...)
+                   fix-defs ...
                    body1 body2 ... ) )) ) ) )
 
     (define-syntax $define-test
       (syntax-rules (quote define-test make-test)
-        ((_ s 'args '(define-test name-spec body1 body2 ...))
+        ((_ s 'args 'fix-defs '(define-test name-spec body1 body2 ...))
          ($ s ($make-test
                 ($parse-name-spec 'name-spec)
                 'args
+                'fix-defs
                 '(body1 body2 ...) )) ) ) )
 
 ) )
