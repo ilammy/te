@@ -27,9 +27,11 @@
       (syntax-rules (quote)
         ((_ s 'name '(args ...) '(fix-defs ...) '(body1 body2 ...))
          ($ s '(make-test name
-                 (lambda (args ...)
-                   fix-defs ...
-                   body1 body2 ... ) )) ) ) )
+                 (lambda ()
+                   (lambda (args ...)
+                     fix-defs ...
+                     body1 body2 ... ) )
+                 (lambda () '(())) )) ) ) )
 
     (define-syntax $define-test
       (syntax-rules (quote define-test make-test)
