@@ -131,7 +131,7 @@
 
     (let* ((tests (list-ref processed 2))
            (test  (list-ref tests     0)))
-      ((test-body test) 6 7) ) )
+      (((test-body test)) 6 7) ) )
 )
 (verify-test-case! test-$process-case-body:wrapper-handling)
 
@@ -144,7 +144,7 @@
       (let ((run   (list-ref processed-case-body 1))
             (tests (list-ref processed-case-body 2)))
         (define (test-passed? test)
-          (run (test-body test)) )
+          (run ((test-body test))) )
         (every test-passed? tests) ) ) )
 
   (define-test ("fixture normal definitions")

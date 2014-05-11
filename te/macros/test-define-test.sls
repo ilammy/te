@@ -64,23 +64,23 @@
 
   (define-test ("body transfer 1")
     (define test ($ ($define-test '() '() '(define-test () 42))))
-    (equal? 42 ((test-body test))) )
+    (equal? 42 (((test-body test)))) )
 
   (define-test ("body transfer 2")
     (define test ($ ($define-test '() '() '(define-test (Named) #f))))
-    (equal? #f ((test-body test))) )
+    (equal? #f (((test-body test)))) )
 
   (define-test ("parameterized body 1")
     (define test ($ ($define-test '(x) '() '(define-test ("id") x))))
-    (and (equal? 1   ((test-body test) 1))
-         (equal? #f  ((test-body test) #f))
-         (equal? 'uu ((test-body test) 'uu)) ) )
+    (and (equal? 1   (((test-body test)) 1))
+         (equal? #f  (((test-body test)) #f))
+         (equal? 'uu (((test-body test)) 'uu)) ) )
 
   (define-test ("parameterized body 2")
     (define test ($ ($define-test '(a b) '() '(define-test () (+ a b)))))
-    (and (=  0 ((test-body test) -1 +1))
-         (= 42 ((test-body test) 21 21))
-         (=  3 ((test-body test)  1  2)) ) )
+    (and (=  0 (((test-body test)) -1 +1))
+         (= 42 (((test-body test)) 21 21))
+         (=  3 (((test-body test))  1  2)) ) )
 )
 (verify-test-case! test-$define-test?-bodies)
 
@@ -94,6 +94,6 @@
            '((define a 10) (define b 20))
            '(define-test () (+ a b)) )) )
 
-    (= 30 ((test-body test))) )
+    (= 30 (((test-body test)))) )
 )
 (verify-test-case! test-$define-test?-fixtures)
