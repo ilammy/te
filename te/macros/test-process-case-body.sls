@@ -19,89 +19,82 @@
               (= test-count (length tests))
               (every test? tests) ) ) ) )
 
-(define-test-case (test-$process-case-body:syntax)
+(define-syntax define-case-body
+  (syntax-rules ()
+    ((_ binding expression)
+     (define binding
+       ($ ($cons 'list
+            ($process-case-body expression) )) ) ) ) )
+
+; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ;
+
+(define-test-case (test-$process-case-body:syntax:configuration)
 
   (define-test ("define-test only")
-    (define processed
-      ($ ($cons 'list
-           ($process-case-body
-             '((define-test () 1) (define-test () 2)) ) )) )
+    (define-case-body processed
+      '((define-test () 1) (define-test () 2)) )
 
     (valid-test-case-body? processed 2) )
 
   (define-test ("define-test + case wrapper")
-    (define processed
-      ($ ($cons 'list
-           ($process-case-body
-             '((define-case-wrapper (run) (cons 1 2) (run))
-               (define-test () 1) (define-test () 2)) ) )) )
+    (define-case-body processed
+      '((define-case-wrapper (run) (cons 1 2) (run))
+        (define-test () 1) (define-test () 2)) )
 
     (valid-test-case-body? processed 2) )
 
   (define-test ("define-test + test wrapper")
-    (define processed
-      ($ ($cons 'list
-           ($process-case-body
-             '((define-test-wrapper (run) (cons 1 2) (run))
-               (define-test () 1)) ) )) )
+    (define-case-body processed
+      '((define-test-wrapper (run) (cons 1 2) (run))
+        (define-test () 1)) )
 
     (valid-test-case-body? processed 1) )
 
   (define-test ("define-test + both wrappers")
-    (define processed
-      ($ ($cons 'list
-           ($process-case-body
-             '((define-case-wrapper (run) (cons 1 2) (run))
-               (define-test-wrapper (run) (cons 3 4) (run))
-               (define-test () 1) (define-test () 2)
-               (define-test () 3) (define-test () 4)) ) )) )
+    (define-case-body processed
+      '((define-case-wrapper (run) (cons 1 2) (run))
+        (define-test-wrapper (run) (cons 3 4) (run))
+        (define-test () 1) (define-test () 2)
+        (define-test () 3) (define-test () 4)) )
 
     (valid-test-case-body? processed 4) )
 
   (define-test ("define-test + fixture")
-    (define processed
-      ($ ($cons 'list
-           ($process-case-body
-             '((define-fixture (define some 'x))
-               (define-test () 1) (define-test () 2)) ) )) )
+    (define-case-body processed
+      '((define-fixture (define some 'x))
+        (define-test () 1) (define-test () 2)) )
 
     (valid-test-case-body? processed 2) )
 
   (define-test ("define-test + fixture + wrappers 1")
-    (define processed
-      ($ ($cons 'list
-           ($process-case-body
-             '((define-case-wrapper (run) (cons 1 2) (run))
-               (define-fixture (define some 'x))
-               (define-test-wrapper (run) (cons 3 4) (run))
-               (define-test () 1) (define-test () 2)) ) )) )
+    (define-case-body processed
+      '((define-case-wrapper (run) (cons 1 2) (run))
+        (define-fixture (define some 'x))
+        (define-test-wrapper (run) (cons 3 4) (run))
+        (define-test () 1) (define-test () 2)) )
 
     (valid-test-case-body? processed 2) )
 
   (define-test ("define-test + fixture + wrappers 2")
-    (define processed
-      ($ ($cons 'list
-           ($process-case-body
-             '((define-fixture (define some 'x))
-               (define-test-wrapper (run) (cons 3 4) (run))
-               (define-case-wrapper (run) (cons 1 2) (run))
-               (define-test () 1)) ) )) )
+    (define-case-body processed
+      '((define-fixture (define some 'x))
+        (define-test-wrapper (run) (cons 3 4) (run))
+        (define-case-wrapper (run) (cons 1 2) (run))
+        (define-test () 1)) )
 
     (valid-test-case-body? processed 1) )
 )
-(verify-test-case! test-$process-case-body:syntax)
+(verify-test-case! test-$process-case-body:syntax:configuration)
 
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ;
 
 (define-test-case (test-$process-case-body:wrapper-handling)
 
   (define-test ("normal wrapper order")
-    (define processed
-      ($ ($cons 'list
-           ($process-case-body
-             '((define-case-wrapper (run) (run) 'CASE-HIJACK!)
-               (define-test-wrapper (run) (run) 'TEST-HIJACK!)
-               (define-test () #t)) ) )) )
+    (define-case-body processed
+      '((define-case-wrapper (run) (run) 'CASE-HIJACK!)
+        (define-test-wrapper (run) (run) 'TEST-HIJACK!)
+        (define-test () #t)) )
 
     (let ((case-wrapper (list-ref processed 0))
           (test-wrapper (list-ref processed 1)))
@@ -109,12 +102,10 @@
            (equal? (test-wrapper (lambda () #t)) 'TEST-HIJACK!) ) ) )
 
   (define-test ("inverted wrapper order")
-    (define processed
-      ($ ($cons 'list
-           ($process-case-body
-             '((define-test-wrapper (run) (run) 'TEST-HIJACK!)
-               (define-case-wrapper (run) (run) 'CASE-HIJACK!)
-               (define-test () #t)) ) )) )
+    (define-case-body processed
+      '((define-test-wrapper (run) (run) 'TEST-HIJACK!)
+        (define-case-wrapper (run) (run) 'CASE-HIJACK!)
+        (define-test () #t)) )
 
     (let ((case-wrapper (list-ref processed 0))
           (test-wrapper (list-ref processed 1)))
@@ -122,12 +113,10 @@
            (equal? (test-wrapper (lambda () #t)) 'TEST-HIJACK!) ) ) )
 
   (define-test ("test wrapper argument extraction")
-    (define processed
-      ($ ($cons 'list
-           ($process-case-body
-             '((define-test-wrapper (run woobley wobbley) (run 'zog 'bork))
-               (define-test ("product = 42")
-                 (= 42 (* woobley wobbley)) )) ) )) )
+    (define-case-body processed
+      '((define-test-wrapper (run woobley wobbley) (run 'zog 'bork))
+        (define-test ("product = 42")
+          (= 42 (* woobley wobbley)) )) )
 
     (let* ((tests (list-ref processed 2))
            (test  (list-ref tests     0)))
@@ -148,58 +137,48 @@
         (every test-passed? tests) ) ) )
 
   (define-test ("fixture normal definitions")
-    (define processed
-      ($ ($cons 'list
-           ($process-case-body
-             '((define-fixture
-                 (define a 10)
-                 (define b 20)
-                 (define (dup x) (* 2 x)) )
-               (define-test () (= 60 (dup (+ a b))))
-               (define-test () (= a (- b a)))) ) )) )
+    (define-case-body processed
+      '((define-fixture
+          (define a 10)
+          (define b 20)
+          (define (dup x) (* 2 x)) )
+        (define-test () (= 60 (dup (+ a b))))
+        (define-test () (= a (- b a)))) )
 
     (all-test-pass? processed) )
 
   (define-test ("fixture mutation")
-    (define processed
-      ($ ($cons 'list
-           ($process-case-body
-             '((define-fixture (define a 10))
-               (define-test () (= a 10))
-               (define-test () (set! a 20) (= a 20))
-               (define-test () (= a 10))) ) )) )
+    (define-case-body processed
+      '((define-fixture (define a 10))
+        (define-test () (= a 10))
+        (define-test () (set! a 20) (= a 20))
+        (define-test () (= a 10))) )
 
     (all-test-pass? processed) )
 
   (define-test ("fixture macro definitions")
-    (define processed
-      ($ ($cons 'list
-           ($process-case-body
-             '((define-fixture
-                 (define-syntax dup
-                   (syntax-rules ()
-                     ((_ x) (* 2 x)) ) ) )
-               (define-test () (= 40 (dup 20)))) ) )) )
+    (define-case-body processed
+      '((define-fixture
+          (define-syntax dup
+            (syntax-rules ()
+              ((_ x) (* 2 x)) ) ) )
+        (define-test () (= 40 (dup 20)))) )
 
     (all-test-pass? processed) )
 
   (define-test ("fixture + parameters bindings")
-    (define processed
-      ($ ($cons 'list
-           ($process-case-body
-             '((define-test-wrapper (run foo) (run 20))
-               (define-fixture (define bar 10))
-               (define-test () (= 30 (+ foo bar)))) ) )) )
+    (define-case-body processed
+      '((define-test-wrapper (run foo) (run 20))
+        (define-fixture (define bar 10))
+        (define-test () (= 30 (+ foo bar)))) )
 
     (all-test-pass? processed) )
 
   (define-test ("fixture binding priority over parameters")
-    (define processed
-      ($ ($cons 'list
-           ($process-case-body
-             '((define-test-wrapper (run foo) (run 20))
-               (define-fixture (define foo 10))
-               (define-test () (= 10 foo))) ) )) )
+    (define-case-body processed
+      '((define-test-wrapper (run foo) (run 20))
+        (define-fixture (define foo 10))
+        (define-test () (= 10 foo))) )
 
     (all-test-pass? processed) )
 )
