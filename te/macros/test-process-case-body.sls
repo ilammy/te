@@ -24,11 +24,11 @@
     ((_ binding expression)
      (define binding
        ($ ($cons 'list
-            ($process-case-body2 expression) )) ) ) ) )
+            ($process-case-body expression) )) ) ) ) )
 
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ;
 
-(define-test-case (test-$process-case-body2:syntax:configuration)
+(define-test-case (test-$process-case-body:syntax:configuration)
 
   (define-test ("define-test only")
     (define-case-body processed
@@ -84,11 +84,11 @@
 
     (valid-test-case-body? processed 1) )
 )
-(verify-test-case! test-$process-case-body2:syntax:configuration)
+(verify-test-case! test-$process-case-body:syntax:configuration)
 
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ;
 
-(define-test-case (test-$process-case-body2:syntax:tests-data)
+(define-test-case (test-$process-case-body:syntax:tests-data)
 
   (define-test ("anonymous tests")
     (define-case-body processed
@@ -125,11 +125,11 @@
     (valid-test-case-body? processed 1) )
 
 )
-(verify-test-case! test-$process-case-body2:syntax:tests-data)
+(verify-test-case! test-$process-case-body:syntax:tests-data)
 
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ;
 
-(define-test-case (test-$process-case-body2:wrapper-handling)
+(define-test-case (test-$process-case-body:wrapper-handling)
 
   (define-test ("normal wrapper order")
     (define-case-body processed
@@ -163,11 +163,11 @@
            (test  (list-ref tests     0)))
       (((test-body test)) 6 7) ) )
 )
-(verify-test-case! test-$process-case-body2:wrapper-handling)
+(verify-test-case! test-$process-case-body:wrapper-handling)
 
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ;
 
-(define-test-case (test-$process-case-body2:fixture-handling)
+(define-test-case (test-$process-case-body:fixture-handling)
 
   (define-fixture
     (define (all-test-pass? processed-case-body)
@@ -223,11 +223,11 @@
 
     (all-test-pass? processed) )
 )
-(verify-test-case! test-$process-case-body2:fixture-handling)
+(verify-test-case! test-$process-case-body:fixture-handling)
 
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ;
 
-(define-test-case (test-$process-case-body2:data-thunk-handling)
+(define-test-case (test-$process-case-body:data-thunk-handling)
 
   (define-fixture
     (define (extract-test-data processed-case-body)
@@ -302,4 +302,4 @@
             (body (test-body test)))
         (run (apply body (car (data)))) ) ) )
 )
-(verify-test-case! test-$process-case-body2:data-thunk-handling)
+(verify-test-case! test-$process-case-body:data-thunk-handling)

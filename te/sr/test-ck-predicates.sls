@@ -50,7 +50,7 @@
   (define-test ("#t")        (true?  ($bool? '#t)))
   (define-test ("#f")        (true?  ($bool? '#f)))
   (define-test ("quoted #t") (false? ($bool? ''#t)))
-  (define-test ("quoted #t") (false? ($bool? ''#f)))
+  (define-test ("quoted #f") (false? ($bool? ''#f)))
   (define-test ("nil")       (false? ($bool? '())))
   (define-test ("list")      (false? ($bool? '(1 2))))
   (define-test ("number")    (false? ($bool? '42)))
@@ -61,7 +61,11 @@
 
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ;
 
-(define-test-case (ck-predicates:same? "CK predicate functions: $same?")
+;; DrRacket's macroexpander is shit. Or my O(n^2) macros are shit. Either way,
+;; this LOAD of asserts cannot be transformed into a data-driven test (as it
+;; tests _compile-time_ macros). So it is just broken into manageable parts.
+
+(define-test-case (ck-predicates:same?_1 "CK predicate functions: $same?")
 
   (define-test ("numbers same")       (true?  ($same? '1 '1)))
   (define-test ("numbers not same")   (false? ($same? '1 '2)))
@@ -75,6 +79,10 @@
 
   (define-test ("strings same")       (true?  ($same? '"foo" '"foo")))
   (define-test ("strings not same")   (false? ($same? '"Foo" '"foo")))
+)
+(verify-test-case! ck-predicates:same?_1)
+
+(define-test-case (ck-predicates:same?_2 "CK predicate functions: $same?")
 
   (define-test ("quotes same")        (true?  ($same? ''foo ''foo)))
   (define-test ("quotes not same 0")  (false? ($same? ''foo ''Foo)))
@@ -88,6 +96,10 @@
   (define-test ("quotes not same 4+") (false? ($same?  '(1) ''(1))))
   (define-test ("quotes not same 5-") (false? ($same? ''#()  '#())))
   (define-test ("quotes not same 5+") (false? ($same?  '#() ''#())))
+)
+(verify-test-case! ck-predicates:same?_2)
+
+(define-test-case (ck-predicates:same?_3 "CK predicate functions: $same?")
 
   (define-test ("nils same")          (true?  ($same? '() '())))
   (define-test ("nested not same")    (false? ($same? '() '(()))))
@@ -100,6 +112,10 @@
 
   (define-test ("lists 2 same")       (true?  ($same? '(a b) '(a b))))
   (define-test ("lists 2 not same")   (false? ($same? '(a b) '(c d))))
+)
+(verify-test-case! ck-predicates:same?_3)
+
+(define-test-case (ck-predicates:same?_4 "CK predicate functions: $same?")
 
   (define-test ("lists 3 same")       (true?  ($same? '(((a) (b) c d) (e . f))
                                                             '(((a) (b) c d) (e . f)) )))
@@ -116,4 +132,4 @@
   (define-test ("vecs 2 not same")    (false? ($same? '#((1 2) #(#('f) (1 2)))
                                                             '#((1 2) #(#('e) (1 2))))))
 )
-(verify-test-case! ck-predicates:same?)
+(verify-test-case! ck-predicates:same?_4)

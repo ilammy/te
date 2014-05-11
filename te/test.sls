@@ -112,21 +112,36 @@
       (let loop ((result '())
                  (list list))
         (if (null? list) (reverse result)
-            (loop (cons (proc (car list)))
+            (loop (cons (proc (car list)) result)
                   (cdr list) ) ) ) )
+
+    (define (map-combinatorial proc list1 list2)
+      (apply append
+        (map (lambda (elt1)
+          (map (lambda (elt2)
+            (proc elt1 elt2) )
+            list2 ) )
+          list1 ) ) )
 
     (define-test-case (test-my-map)
       (define-data ("Orig. map")
-        (define procs (list bool? (lambda (x) x) (lambda (x) (equal? x 1))
-                        (lambda (x) (if (number? x) (* x 57) 'banana))
-                        (lambda (x) *) ))
-        (define lists (list '(1 2 3 4) '(foo bar) (list + * - /) '()
-                            '("a" 4 'bark '(42)) ))
-        (map (lambda (proc)
-          (map (lambda (list)
+        (define procs
+          (list (lambda (x) (or (eq? x #t) (eq? x #f)))
+                (lambda (x) x)
+                (lambda (x) (equal? x 1))
+                (lambda (x) (if (number? x) (* x 57) 'banana))
+                (lambda (x) *) ) )
+        (define lists
+          (list '(1 2 3 4)
+                '(foo bar)
+                (list + * - /)
+                '()
+                '("a" 4 'bark '(42)) ) )
+        (map-combinatorial
+          (lambda (proc list)
             `(,proc ,list ,(map proc list)) )
-            lists ) )
-          procs ) )
+          procs
+          lists ) )
 
       (define-test ("Empty") (null? (my-map (lambda (x) x) '())))
 
@@ -134,7 +149,7 @@
         (equal? expected
           (my-map proc list) ) )
     )
-    (verify-test-case! generated) )
+    (verify-test-case! test-my-map) )
 
 )
 (verify-test-case! data-driven)
