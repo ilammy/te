@@ -24,11 +24,11 @@
     ((_ binding expression)
      (define binding
        ($ ($cons 'list
-            ($process-case-body expression) )) ) ) ) )
+            ($process-case-body2 expression) )) ) ) ) )
 
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ;
 
-(define-test-case (test-$process-case-body:syntax:configuration)
+(define-test-case (test-$process-case-body2:syntax:configuration)
 
   (define-test ("define-test only")
     (define-case-body processed
@@ -84,11 +84,52 @@
 
     (valid-test-case-body? processed 1) )
 )
-(verify-test-case! test-$process-case-body:syntax:configuration)
+(verify-test-case! test-$process-case-body2:syntax:configuration)
 
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ;
 
-(define-test-case (test-$process-case-body:wrapper-handling)
+(define-test-case (test-$process-case-body2:syntax:tests-data)
+
+  (define-test ("anonymous tests")
+    (define-case-body processed
+      '((define-test () 1) (define-test () 2) (define-test () 3)) )
+
+    (valid-test-case-body? processed 3) )
+
+  (define-test ("named tests")
+    (define-case-body processed
+      '((define-test ("1") 1) (define-test ("2") 2)) )
+
+    (valid-test-case-body? processed 2) )
+
+  (define-test ("with data")
+    (define-case-body processed
+      '((define-test ("1") 1) (define-test ("2") 2)
+        (define-data ("1") 1)) )
+
+    (valid-test-case-body? processed 2) )
+
+  (define-test ("arranged data")
+    (define-case-body processed
+      '((define-data ("3") 3) (define-test ("2") 2)
+        (define-test ("1") 1) (define-data ("2") 2)
+        (define-data ("1") 1) (define-test ("3") 3)) )
+
+    (valid-test-case-body? processed 3) )
+
+  (define-test ("data + fixture")
+    (define-case-body processed
+      '((define-fixture (define foo 1))
+        (define-data ("1") 1) (define-test ("1") 1)) )
+
+    (valid-test-case-body? processed 1) )
+
+)
+(verify-test-case! test-$process-case-body2:syntax:tests-data)
+
+; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ;
+
+(define-test-case (test-$process-case-body2:wrapper-handling)
 
   (define-test ("normal wrapper order")
     (define-case-body processed
@@ -122,11 +163,11 @@
            (test  (list-ref tests     0)))
       (((test-body test)) 6 7) ) )
 )
-(verify-test-case! test-$process-case-body:wrapper-handling)
+(verify-test-case! test-$process-case-body2:wrapper-handling)
 
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ;
 
-(define-test-case (test-$process-case-body:fixture-handling)
+(define-test-case (test-$process-case-body2:fixture-handling)
 
   (define-fixture
     (define (all-test-pass? processed-case-body)
@@ -174,7 +215,7 @@
 
     (all-test-pass? processed) )
 
-  (define-test ("fixture binding priority over parameters")
+  (define-test ("binding: fixture > parameters")
     (define-case-body processed
       '((define-test-wrapper (run foo) (run 20))
         (define-fixture (define foo 10))
@@ -182,4 +223,83 @@
 
     (all-test-pass? processed) )
 )
-(verify-test-case! test-$process-case-body:fixture-handling)
+(verify-test-case! test-$process-case-body2:fixture-handling)
+
+; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ;
+
+(define-test-case (test-$process-case-body2:data-thunk-handling)
+
+  (define-fixture
+    (define (extract-test-data processed-case-body)
+      (let ((tests (list-ref processed-case-body 2)))
+        (map (lambda (test)
+               ((test-data test)) )
+          tests ) ) ) )
+
+  (define-test ("default thunks for anonymous tests")
+    (define-case-body processed
+      '((define-test () 1) (define-test () 2)) )
+
+    (equal? '((()) (()))
+      (extract-test-data processed) ) )
+
+  (define-test ("default thunks for named tests without data")
+    (define-case-body processed
+      '((define-test ("1") 1)
+        (define-test ("2") 2) (define-data ("2") 2)
+        (define-test ("3") 3)) )
+
+    (equal? '((()) 2 (()))
+      (extract-test-data processed) ) )
+
+  (define-test ("simple data transfer")
+    (define-case-body processed
+      '((define-test ("1") 1) (define-data ("1") 1)
+        (define-test ("2") 2) (define-data ("2") 2)) )
+
+    (equal? '(1 2)
+      (extract-test-data processed) ) )
+
+  (define-test ("named data does not mix")
+    (define-case-body processed
+      '((define-test ("2") 2) (define-data ("1") 1)
+        (define-test ("1") 1) (define-data ("2") 2)) )
+
+    (equal? '(2 1)
+      (extract-test-data processed) ) )
+
+  (define-test ("anonymous tests go to end")
+    (define-case-body processed
+      '((define-test ("1") 1) (define-data ("2") 2)
+        (define-test () 'omg)
+        (define-test ("2") 2) (define-data ("1") 1)) )
+
+    (equal? '(1 2 (()))
+      (extract-test-data processed) ) )
+
+  (define-test ("data declarations have implicit begin")
+    (define-case-body processed
+      '((define-test ("1") 1)
+        (define-data ("1") 1 2 3)) )
+
+    (equal? '(3)
+      (extract-test-data processed) ) )
+
+  (define-test ("binding: fixture > parameters > data")
+    (define-case-body processed
+      '((define-fixture (define a 10))
+        (define-test-wrapper (run a b) (run 20 21))
+        (define-test ("1" a b c)
+          (and (= a 10)
+               (= b 21)
+               (= c 32) ) )
+        (define-data ("1")
+          '((30 31 32)) )) )
+
+    (let ((run (list-ref processed 1))
+          (test (list-ref (list-ref processed 2) 0)))
+      (let ((data (test-data test))
+            (body (test-body test)))
+        (run (apply body (car (data)))) ) ) )
+)
+(verify-test-case! test-$process-case-body2:data-thunk-handling)

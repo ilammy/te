@@ -22,6 +22,28 @@
 
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ;
 
+(define-test-case (ck-lists:append "CK functions for lists: $append")
+
+  (define-test ("empty + empty")
+    (equal? '()
+      ($ ($quote ($append '() '()))) ) )
+
+  (define-test ("empty + list")
+    (equal? '(1 2 3)
+      ($ ($quote ($append '() '(1 2 3)))) ) )
+
+  (define-test ("list + empty")
+    (equal? '(1 2 3)
+      ($ ($quote ($append '(1 2 3) '()))) ) )
+
+  (define-test ("list + list")
+    (equal? '(1 2 3 4 5)
+      ($ ($quote ($append '(1 2) '(3 4 5)))) ) )
+)
+(verify-test-case! ck-lists:append)
+
+; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ;
+
 (define-test-case (ck-lists:map "CK functions for lists: $map")
 
   (define-test ("$map empty")
@@ -99,6 +121,28 @@
       ($ ($quote ($filter '($same? '1) '(1 2 3 2 1 2 3 4 1)))) ) )
 )
 (verify-test-case! ck-lists:filter)
+
+; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ;
+
+(define-test-case (ck-lists:partition "CK functions for lists: $partition")
+
+  (define-test ("$partition empty")
+    (equal? '(() ())
+      ($ ($quote ($partition '$symbol? '()))) ) )
+
+  (define-test ("$partition 1")
+    (equal? '(((1) (2) (3)) (a #f "9"))
+      ($ ($quote ($partition '$list? '((1) a (2) #f (3) "9")))) ) )
+
+  (define-test ("$partition 2")
+    (equal? '((#t #f) ())
+      ($ ($quote ($partition '$bool? '(#t #f)))) ) )
+
+  (define-test ("$partition 3")
+    (equal? '((1 1 1) (2 3 2 2 3 4))
+      ($ ($quote ($partition '($same? '1) '(1 2 3 2 1 2 3 4 1)))) ) )
+)
+(verify-test-case! ck-lists:partition)
 
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ;
 

@@ -88,21 +88,53 @@
       (define-test () (= outer-x (* factor 28)))
     )
     (verify-test-case! both-wrappers) )
-
-  ; -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   - ;
-
-  (define-test ("Case + test wrappers")
-    (define outer-x 42)
-
-    (define-test-case (both-wrappers "Case + test wrappers")
-      (define-case-wrapper (run)
-        (set! outer-x 56) (run) )
-
-      (define-test-wrapper (run factor)
-        (run 2) )
-
-      (define-test () (= outer-x (* factor 28)))
-    )
-    (verify-test-case! both-wrappers) )
 )
 (verify-test-case! fixtures)
+
+; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ;
+
+(define-test-case (data-driven "Data-driven testing")
+
+  (define-test ("Simple direct data")
+
+    (define-test-case (simple)
+      (define-test ("Addition" a b sum)
+        (= (+ a b) sum) )
+      (define-data ("Addition")
+        '((   0     1   1)
+          (   2     2   4)) )
+    )
+    (verify-test-case! simple) )
+
+  (define-test ("Generated data")
+
+    (define (my-map proc list)
+      (let loop ((result '())
+                 (list list))
+        (if (null? list) (reverse result)
+            (loop (cons (proc (car list)))
+                  (cdr list) ) ) ) )
+
+    (define-test-case (test-my-map)
+      (define-data ("Orig. map")
+        (define procs (list bool? (lambda (x) x) (lambda (x) (equal? x 1))
+                        (lambda (x) (if (number? x) (* x 57) 'banana))
+                        (lambda (x) *) ))
+        (define lists (list '(1 2 3 4) '(foo bar) (list + * - /) '()
+                            '("a" 4 'bark '(42)) ))
+        (map (lambda (proc)
+          (map (lambda (list)
+            `(,proc ,list ,(map proc list)) )
+            lists ) )
+          procs ) )
+
+      (define-test ("Empty") (null? (my-map (lambda (x) x) '())))
+
+      (define-test ("Orig. map" proc list expected)
+        (equal? expected
+          (my-map proc list) ) )
+    )
+    (verify-test-case! generated) )
+
+)
+(verify-test-case! data-driven)
