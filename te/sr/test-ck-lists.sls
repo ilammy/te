@@ -77,3 +77,50 @@
       ($ ($quote ($span '$symbol? '(a b c)))) ) )
 )
 (verify-test-case! ck-lists:span)
+
+; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ;
+
+(define-test-case (ck-lists:filter "CK functions for lists: $filter")
+
+  (define-test ("$filter empty")
+    (equal? '()
+      ($ ($quote ($filter '$symbol? '()))) ) )
+
+  (define-test ("$filter 1")
+    (equal? '((1) (2) (3))
+      ($ ($quote ($filter '$list? '((1) a (2) #f (3) "9")))) ) )
+
+  (define-test ("$filter 2")
+    (equal? '(#t #f)
+      ($ ($quote ($filter '$bool? '(#t a (#t) #f)))) ) )
+
+  (define-test ("$filter 3")
+    (equal? '(1 1 1)
+      ($ ($quote ($filter '($same? '1) '(1 2 3 2 1 2 3 4 1)))) ) )
+)
+(verify-test-case! ck-lists:filter)
+
+; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ;
+
+(define-test-case (ck-lists:group-by "CK functions for lists: $group-by")
+
+  (define-test ("$group-by empty")
+    (define-syntax $id (syntax-rules (quote) ((_ s 'id) ($ s 'id))))
+    (equal? '() ($ ($quote ($group-by '$id '())))) )
+
+  (define-test ("$group-by id")
+    (define-syntax $id (syntax-rules (quote) ((_ s 'id) ($ s 'id))))
+
+    (equal? '((1 1 1) (2 2) (3))
+      ($ ($quote ($group-by '$id '(1 2 3 1 2 1)))) ) )
+
+  (define-test ("$group-by match")
+    (define-syntax $head-form
+      (syntax-rules (quote)
+        ((_ s '(a . d)) ($ s 'a)) ) )
+
+    (equal? '(((x 1) (x 4 2)) ((y 9) (y 1)) ((z)))
+      ($ ($quote ($group-by '$head-form
+                   '((x 1) (y 9) (x 4 2) (y 1) (z)) ))) ) )
+)
+(verify-test-case! ck-lists:group-by)
