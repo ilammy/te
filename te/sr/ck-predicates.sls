@@ -4,7 +4,8 @@
   (export $symbol?
           $bool?
           $list?
-          $same?)
+          $same?
+          $or)
 
   (import (rnrs base)
           (te sr ck))
@@ -62,5 +63,11 @@
     (define-syntax $same?
       (syntax-rules (quote)
         ((_ s 'a 'b) (?same a b ($ s '#t) ($ s '#f))) ) )
+
+    (define-syntax $or
+      (syntax-rules (quote)
+        ((_ s '#t 'other ...) ($ s '#t))
+        ((_ s '#f) ($ s '#f))
+        ((_ s '#f 'other ...) ($ s ($or 'other ...))) ) )
 
 ) )

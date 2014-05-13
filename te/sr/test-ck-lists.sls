@@ -124,3 +124,25 @@
                    '((x 1) (y 9) (x 4 2) (y 1) (z)) ))) ) )
 )
 (verify-test-case! ck-lists:group-by)
+
+; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ;
+
+(define-test-case (ck-lists:partition "CK functions for lists: partition")
+
+  (define-test ("empty list")
+    (equal? '(()())
+      ($ ($quote ($partition '$bool? '()))) ) )
+
+  (define-test ("only true")
+    (equal? '((#t #t #f) ())
+      ($ ($quote ($partition '$bool? '(#t #t #f)))) ) )
+
+  (define-test ("only false")
+    (equal? '(() (3 8 x #t))
+      ($ ($quote ($partition '$list? '(3 8 x #t)))) ) )
+
+  (define-test ("partial")
+    (equal? '((1 1 1) (a b c d))
+      ($ ($quote ($partition '($same? '1) '(a 1 b 1 c 1 d)))) ) )
+)
+(verify-test-case! ck-lists:partition)

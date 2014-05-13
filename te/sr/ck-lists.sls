@@ -1,7 +1,7 @@
 #!r6rs
 (library (te sr ck-lists)
 
-  (export $cons $map $reverse $span $filter $group-by)
+  (export $cons $map $reverse $span $filter $group-by $partition)
 
   (import (rnrs base)
           (te sr ck)
@@ -72,4 +72,13 @@
         ((_ s '(g ...) '(a . d) 'result) ($ s ($group-by '(g ...) 'd
                                                 ($group-list:insert
                                                   '(g ...) 'a 'result ) ))) ) )
+    (define-syntax $partition
+      (syntax-rules (quote)
+        ((_ s '(p ...) 'list)     ($ s ($partition '(p ...) 'list '() '())))
+        ((_ s 'pred    'list)     ($ s ($partition '(pred)  'list '() '())))
+        ((_ s '(p ...) '() 't 'f) ($ s '(t f)))
+        ((_ s '(p ...) '(a . d) '(t ...) '(f ...))
+         ($ s ($if (p ... 'a)
+                  '($partition '(p ...) 'd '(t ... a) '(f ...))
+                  '($partition '(p ...) 'd '(t ...) '(f ... a)) )) ) ) )
 ) )

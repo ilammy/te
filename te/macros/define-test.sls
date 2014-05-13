@@ -1,8 +1,8 @@
 #!r6rs
 (library (te macros define-test)
 
-  (export $define-test?
-          $define-test)
+  (export $define-test
+          $define-test-form?)
 
   (import (rnrs base)
           (te internal data)
@@ -12,8 +12,8 @@
 
   (begin
 
-    (define-syntax $define-test?
-      (syntax-rules (quote define-test make-test)
+    (define-syntax $define-test-form?
+      (syntax-rules (quote define-test)
         ((_ s '(define-test ignored ...)) ($ s '#t))
         ((_ s 'anything-else)             ($ s '#f)) ) )
 

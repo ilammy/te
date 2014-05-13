@@ -106,3 +106,55 @@
     (verify-test-case! both-wrappers) )
 )
 (verify-test-case! fixtures)
+
+; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ;
+
+(define-test-case (definitions "Internal definitions")
+
+  (define-test ("Simple definitions")
+
+    (define-test-case (simple-defs)
+      (define-syntax add
+        (syntax-rules ()
+          ((_ x ...) (+ x ...)) ) )
+
+      (define x (add 3 7))
+
+      (define-test ("Reference")
+        (= x 10) )
+    )
+    (verify-test-case! simple-defs) )
+
+  (define-test ("internal define syntax")
+
+    (define-test-case (internal-defs)
+      (define-test ("Forward reference")
+        (= x 10) )
+
+      (define y 5)
+      (define x (* 2 y))
+
+      (define-test ("Modification") ; don't try this at home!
+        (set! x 40)
+        (= x 40) )
+    )
+    (verify-test-case! internal-defs) )
+
+  (define-test ("Interaction with fixtures")
+
+    (define-test-case (defs+fixtures)
+      (define x 5)
+      (define y 10)
+
+      (define-fixture
+        (define foo (+ x 1))
+        (define y 88) )
+
+      (define-test ("lexical structure")
+        (and (= x 5)
+             (= foo 6)
+             (= y 88) ) )
+    )
+    (verify-test-case! defs+fixtures) )
+)
+(verify-test-case! definitions)

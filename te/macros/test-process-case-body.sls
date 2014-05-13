@@ -1,6 +1,7 @@
 #!r6rs
 
 (import (rnrs base)
+        (only (racket base) define-values)
         (only (srfi :1) every)
         (te)
         (te utils verify-test-case)
@@ -19,16 +20,29 @@
               (= test-count (length tests))
               (every test? tests) ) ) ) )
 
+(define (all-test-pass? test-case-body)
+  (let ((run   (list-ref test-case-body 1))
+        (tests (list-ref test-case-body 2)))
+    (define (test-passed? test)
+      (run ((test-body test))) )
+    (every test-passed? tests) ) )
+
+(define-syntax $define-case-body
+  (syntax-rules (quote)
+    ((_ s 'binding '((args ...) (defs ...)))
+     ($ s '(define binding
+             (let ()
+               defs ...
+               (list args ...) ) )) ) ) )
+
 (define-syntax define-case-body
   (syntax-rules ()
     ((_ binding expression)
-     (define binding
-       ($ ($cons 'list
-            ($process-case-body expression) )) ) ) ) )
+     ($ ($define-case-body 'binding ($process-case-body expression))) ) ) )
 
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ;
 
-(define-test-case (test-$process-case-body:syntax:configuration)
+(define-test-case (test-$process-case-body:syntax)
 
   (define-test ("define-test only")
     (define-case-body processed
@@ -83,8 +97,22 @@
         (define-test () 1)) )
 
     (valid-test-case-body? processed 1) )
+
+  (define-test ("define-test + fixture + wrappers + internal defs")
+    (define-case-body processed
+      '((define a 'foo)
+        (define-fixture (define some 'x))
+        (define b 'bar) (set! a b)
+        (define-test-wrapper (run) (cons 3 4) (run))
+        (define c 'baz)
+        (define-case-wrapper (run) (cons 1 2) (run))
+        (define d 'hux)
+        (define-test () 1)
+        (define e 'qux)) )
+
+    (valid-test-case-body? processed 1) )
 )
-(verify-test-case! test-$process-case-body:syntax:configuration)
+(verify-test-case! test-$process-case-body:syntax)
 
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ;
 
@@ -127,14 +155,6 @@
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ;
 
 (define-test-case (test-$process-case-body:fixture-handling)
-
-  (define-fixture
-    (define (all-test-pass? processed-case-body)
-      (let ((run   (list-ref processed-case-body 1))
-            (tests (list-ref processed-case-body 2)))
-        (define (test-passed? test)
-          (run ((test-body test))) )
-        (every test-passed? tests) ) ) )
 
   (define-test ("fixture normal definitions")
     (define-case-body processed
@@ -183,3 +203,61 @@
     (all-test-pass? processed) )
 )
 (verify-test-case! test-$process-case-body:fixture-handling)
+
+; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ;
+
+(define-test-case (test-$process-case-body:internal-defs-handling)
+
+  (define-test ("simple definitions")
+    (define-case-body processed
+      '((define x 1)
+        (define-test () (= x 1))
+        (define y 2)
+        (define-test () (= (* 2 x) y))) )
+
+    (all-test-pass? processed) )
+
+  (define-test ("macro definitions")
+    (define-case-body processed
+      '((define-syntax duplicate
+          (syntax-rules ()
+            ((_ x) (* 2 x)) ) )
+        (define-test () (= (duplicate 4) 8))) )
+
+    (all-test-pass? processed) )
+
+  (define-test ("forward definitions")
+    (define-case-body processed
+      '((define-test () (= y 3))
+        (define x 1)
+        (define y (* 3 x))) )
+
+    (all-test-pass? processed) )
+
+  (define-test ("visibility")
+    (define-case-body processed
+      '((define-test-wrapper (run foo) (run (* 2 base)))
+        (define-fixture (define bar (* 3 base)))
+        (define-test () (= (* 5 base) (+ foo bar)))
+        (define base 9)) )
+
+    (all-test-pass? processed) )
+
+  (define-test ("binding priority")
+    (define-case-body processed
+      '((define-values (a b c) (values 10 11 12))
+
+        (define-test-wrapper (run a b)
+          (run 20 21) )
+
+        (define-fixture
+          (define a 30) )
+
+        (define-test ("lexical structure")
+          (and (= a 30)
+               (= b 21)
+               (= c 12) ) )) )
+
+    (all-test-pass? processed) )
+)
+(verify-test-case! test-$process-case-body:internal-defs-handling)

@@ -7,21 +7,21 @@
         (te internal data)
         (te sr ck))
 
-(define-test-case (test-$define-test?)
+(define-test-case (test-$define-test-form?)
 
   (define-test ("accepts anonymous define-test")
     (equal? #t
-      ($ ($define-test? '(define-test () #t))) ) )
+      ($ ($define-test-form? '(define-test () #t))) ) )
 
   (define-test ("accepts named define-test")
     (equal? #t
-      ($ ($define-test? '(define-test (with-name) (= 4 (+ 2 2))))) ) )
+      ($ ($define-test-form? '(define-test (with-name) (= 4 (+ 2 2))))) ) )
 
   (define-test ("rejects random shit")
     (equal? #f
-      ($ ($define-test? '(omg lol))) ) )
+      ($ ($define-test-form? '(omg lol))) ) )
 )
-(verify-test-case! test-$define-test?)
+(verify-test-case! test-$define-test-form?)
 
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ;
 

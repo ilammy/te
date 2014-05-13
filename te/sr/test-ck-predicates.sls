@@ -117,3 +117,20 @@
                                                             '#((1 2) #(#('e) (1 2))))))
 )
 (verify-test-case! ck-predicates:same?)
+
+; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ;
+
+(define-test-case (ck-predicates:or "CK predicate functions: $or")
+
+  (define-test () (false? ($or '#f)))
+  (define-test () (true?  ($or '#t)))
+
+  (define-test () (false? ($or '#f '#f)))
+  (define-test () (true?  ($or '#f '#t)))
+  (define-test () (true?  ($or '#t '#f)))
+  (define-test () (true?  ($or '#t '#t)))
+
+  (define-test () (false? ($or '#f '#f '#f '#f '#f)))
+  (define-test () (true?  ($or '#f '#f '#f '#f '#f '#f '#f '#t '#f)))
+)
+(verify-test-case! ck-predicates:or)

@@ -12,10 +12,14 @@
 
     (define-syntax $define-test-case
       (syntax-rules (quote)
-        ((_ s '(binding name) '(body1 body2 ...))
+        ((_ s '(binding name) '((case-lambda test-lambda test-list)
+                                (internal-defs ...)))
          ($ s '(define binding
-                 (make-test-case name
-                   body1 body2 ... ) )) ) ) )
+                 (let ()
+                   internal-defs ...
+                   (make-test-case name
+                     case-lambda test-lambda
+                     test-list ) ) )) ) ) )
 
     (define-syntax $parse-name-binding
       (syntax-rules (quote)
