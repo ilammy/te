@@ -7,6 +7,8 @@
         (te sr ck-kernel)
         (te sr ck-predicates))
 
+; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ;
+
 (define-test-case (ck-kernel:quote "Kernel CK functions: $quote")
 
   (define-test ("$quote simple value")

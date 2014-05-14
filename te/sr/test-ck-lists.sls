@@ -8,6 +8,8 @@
         (te sr ck-lists)
         (te sr ck-predicates))
 
+; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ;
+
 (define-test-case (ck-lists:cons "CK functions for lists: $cons")
 
   (define-test ("$cons pair")
@@ -77,3 +79,47 @@
       ($ ($quote ($span '$symbol? '(a b c)))) ) )
 )
 (verify-test-case! ck-lists:span)
+
+; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ;
+
+(define-test-case (ck-lists:filter "CK functions for lists: $filter")
+
+  (define-test ("$filter empty")
+    (equal? '()
+      ($ ($quote ($filter '$symbol? '()))) ) )
+
+  (define-test ("$filter 1")
+    (equal? '((1) (2) (3))
+      ($ ($quote ($filter '$list? '((1) a (2) #f (3) "9")))) ) )
+
+  (define-test ("$filter 2")
+    (equal? '(#t #f)
+      ($ ($quote ($filter '$bool? '(#t a (#t) #f)))) ) )
+
+  (define-test ("$filter 3")
+    (equal? '(1 1 1)
+      ($ ($quote ($filter '($same? '1) '(1 2 3 2 1 2 3 4 1)))) ) )
+)
+(verify-test-case! ck-lists:filter)
+
+; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ;
+
+(define-test-case (ck-lists:partition "CK functions for lists: partition")
+
+  (define-test ("empty list")
+    (equal? '(()())
+      ($ ($quote ($partition '$bool? '()))) ) )
+
+  (define-test ("only true")
+    (equal? '((#t #t #f) ())
+      ($ ($quote ($partition '$bool? '(#t #t #f)))) ) )
+
+  (define-test ("only false")
+    (equal? '(() (3 8 x #t))
+      ($ ($quote ($partition '$list? '(3 8 x #t)))) ) )
+
+  (define-test ("partial")
+    (equal? '((1 1 1) (a b c d))
+      ($ ($quote ($partition '($same? '1) '(a 1 b 1 c 1 d)))) ) )
+)
+(verify-test-case! ck-lists:partition)

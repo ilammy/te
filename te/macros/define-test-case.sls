@@ -5,17 +5,21 @@
 
   (import (rnrs base)
           (te internal data)
-          (te macros process-case-body)
+          (te macros parse-test-case-body)
           (te sr ck))
 
   (begin
 
     (define-syntax $define-test-case
       (syntax-rules (quote)
-        ((_ s '(binding name) '(body1 body2 ...))
+        ((_ s '(binding name) '((case-lambda test-lambda test-list)
+                                (internal-defs ...)))
          ($ s '(define binding
-                 (make-test-case name
-                   body1 body2 ... ) )) ) ) )
+                 (let ()
+                   internal-defs ...
+                   (make-test-case name
+                     case-lambda test-lambda
+                     test-list ) ) )) ) ) )
 
     (define-syntax $parse-name-binding
       (syntax-rules (quote)
@@ -27,6 +31,6 @@
         ((_ name-binding body1 body2 ...)
          ($ ($define-test-case
               ($parse-name-binding 'name-binding)
-              ($process-case-body '(body1 body2 ...)) )) ) ) )
+              ($parse-test-case-body '(body1 body2 ...)) )) ) ) )
 
 ) )
