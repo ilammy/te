@@ -8,6 +8,8 @@
         (te sr ck-lists)
         (te sr ck-predicates))
 
+; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ;
+
 (define-test-case (ck-lists:cons "CK functions for lists: $cons")
 
   (define-test ("$cons pair")
@@ -99,31 +101,6 @@
       ($ ($quote ($filter '($same? '1) '(1 2 3 2 1 2 3 4 1)))) ) )
 )
 (verify-test-case! ck-lists:filter)
-
-; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ;
-
-(define-test-case (ck-lists:group-by "CK functions for lists: $group-by")
-
-  (define-test ("$group-by empty")
-    (define-syntax $id (syntax-rules (quote) ((_ s 'id) ($ s 'id))))
-    (equal? '() ($ ($quote ($group-by '$id '())))) )
-
-  (define-test ("$group-by id")
-    (define-syntax $id (syntax-rules (quote) ((_ s 'id) ($ s 'id))))
-
-    (equal? '((1 1 1) (2 2) (3))
-      ($ ($quote ($group-by '$id '(1 2 3 1 2 1)))) ) )
-
-  (define-test ("$group-by match")
-    (define-syntax $head-form
-      (syntax-rules (quote)
-        ((_ s '(a . d)) ($ s 'a)) ) )
-
-    (equal? '(((x 1) (x 4 2)) ((y 9) (y 1)) ((z)))
-      ($ ($quote ($group-by '$head-form
-                   '((x 1) (y 9) (x 4 2) (y 1) (z)) ))) ) )
-)
-(verify-test-case! ck-lists:group-by)
 
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ;
 

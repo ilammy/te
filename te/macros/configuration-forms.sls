@@ -1,12 +1,12 @@
 #!r6rs
-(library (te macros case-configuration)
+(library (te macros configuration-forms)
 
   (export $configuration-form?
           $define-fixture
           $define-case-wrapper
           $define-test-wrapper
-          $extract-test-parameters
-          $normalize-case-configuration
+          $extract-param-args
+          $normalize-configuration-forms
           $ensure-default-configuration)
 
   (import (rnrs base)
@@ -38,30 +38,27 @@
          ($ s '(lambda (test-thunk)
                  body1 body2 ... )) ) ) )
 
-    (define-syntax $extract-test-parameters
+    (define-syntax $extract-param-args
       (syntax-rules (quote define-case-wrapper)
         ((_ s '(define-test-wrapper (test-thunk args ...) body1 body2 ...))
          ($ s '(args ...)) ) ) )
 
-    (define-syntax $normalize-case-configuration
+    (define-syntax $normalize-configuration-forms
       (syntax-rules (quote define-case-wrapper define-test-wrapper)
-        ((_ s 'specs) ($ s ($normalize-case-configuration '#f '#f '#f 'specs)))
+        ((_ s 'forms) ($ s ($normalize-configuration-forms '#f '#f '#f 'forms)))
 
         ((_ s 'case 'test 'defs '()) ($ s '(case test defs)))
 
-        ((_ s '#f   'test 'defs
-              '((define-case-wrapper body ...) other ...))
-         ($ s ($normalize-case-configuration
+        ((_ s '#f   'test 'defs '((define-case-wrapper body ...) other ...))
+         ($ s ($normalize-configuration-forms
                 '(define-case-wrapper body ...) 'test 'defs '(other ...) )) )
 
-        ((_ s 'case  '#f  'defs
-              '((define-test-wrapper body ...) other ...))
-         ($ s ($normalize-case-configuration
+        ((_ s 'case  '#f  'defs '((define-test-wrapper body ...) other ...))
+         ($ s ($normalize-configuration-forms
                 'case '(define-test-wrapper body ...) 'defs '(other ...) )) )
 
-        ((_ s 'case 'test   '#f
-              '((define-fixture body-defs ...) other ...))
-         ($ s ($normalize-case-configuration
+        ((_ s 'case 'test   '#f '((define-fixture body-defs ...) other ...))
+         ($ s ($normalize-configuration-forms
                 'case 'test '(define-fixture body-defs ...) '(other ...) )) ) ) )
 
     (define-syntax $ensure-default-configuration

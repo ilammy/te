@@ -5,7 +5,7 @@
         (only (srfi :1) every)
         (te)
         (te utils verify-test-case)
-        (te macros process-case-body)
+        (te macros parse-test-case-body)
         (te internal data)
         (te sr ck)
         (te sr ck-lists))
@@ -40,11 +40,11 @@
 (define-syntax define-case-body
   (syntax-rules ()
     ((_ binding expression)
-     ($ ($define-case-body 'binding ($process-case-body expression))) ) ) )
+     ($ ($define-case-body 'binding ($parse-test-case-body expression))) ) ) )
 
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ;
 
-(define-test-case (test-$process-case-body:syntax)
+(define-test-case (test-$parse-test-case-body:syntax)
 
   (define-test ("define-test only")
     (define-case-body processed
@@ -116,11 +116,11 @@
 
     (valid-test-case-body? processed 1) )
 )
-(verify-test-case! test-$process-case-body:syntax)
+(verify-test-case! test-$parse-test-case-body:syntax)
 
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ;
 
-(define-test-case (test-$process-case-body:wrapper-handling)
+(define-test-case (test-$parse-test-case-body:wrapper-handling)
 
   (define-test ("normal wrapper order")
     (define-case-body processed
@@ -154,11 +154,11 @@
            (test  (list-ref tests     0)))
       (((test-body test)) 6 7) ) )
 )
-(verify-test-case! test-$process-case-body:wrapper-handling)
+(verify-test-case! test-$parse-test-case-body:wrapper-handling)
 
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ;
 
-(define-test-case (test-$process-case-body:fixture-handling)
+(define-test-case (test-$parse-test-case-body:fixture-handling)
 
   (define-test ("fixture normal definitions")
     (define-case-body processed
@@ -206,11 +206,11 @@
 
     (all-test-pass? processed) )
 )
-(verify-test-case! test-$process-case-body:fixture-handling)
+(verify-test-case! test-$parse-test-case-body:fixture-handling)
 
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ;
 
-(define-test-case (test-$process-case-body:internal-defs-handling)
+(define-test-case (test-$parse-test-case-body:internal-defs-handling)
 
   (define-test ("simple definitions")
     (define-case-body processed
@@ -264,11 +264,11 @@
 
     (all-test-pass? processed) )
 )
-(verify-test-case! test-$process-case-body:internal-defs-handling)
+(verify-test-case! test-$parse-test-case-body:internal-defs-handling)
 
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ;
 
-(define-test-case (test-$process-case-body:data-handling)
+(define-test-case (test-$parse-test-case-body:data-handling)
 
   (define-test ("visibility")
     (define-case-body processed
@@ -300,4 +300,4 @@
 
     (all-test-pass? processed) )
 )
-(verify-test-case! test-$process-case-body:internal-defs-handling)
+(verify-test-case! test-$parse-test-case-body:internal-defs-handling)

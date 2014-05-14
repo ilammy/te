@@ -4,9 +4,11 @@
         (only (racket base) define-values)
         (te)
         (te utils verify-test-case)
-        (te macros case-configuration)
+        (te macros configuration-forms)
         (te sr ck)
         (te sr ck-kernel))
+
+; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ;
 
 (define-test-case (test-$configuration-form?)
 
@@ -104,31 +106,31 @@
 
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ;
 
-(define-test-case (test-$extract-test-parameters)
+(define-test-case (test-$extract-param-args)
 
-  (define-test ("$extract-test-parameters nullary")
+  (define-test ("$extract-param-args nullary")
     (equal? '()
-      ($ ($quote ($extract-test-parameters
+      ($ ($quote ($extract-param-args
                    '(define-test-wrapper (run)
                       (run) ) ))) ) )
 
-  (define-test ("$extract-test-parameters nary")
+  (define-test ("$extract-param-args nary")
     (equal? '(a b c)
-      ($ ($quote ($extract-test-parameters
+      ($ ($quote ($extract-param-args
                    '(define-test-wrapper (run a b c)
                       (run 1 2 3) ) ))) ) )
 )
-(verify-test-case! test-$extract-test-parameters)
+(verify-test-case! test-$extract-param-args)
 
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ;
 
-(define-test-case (test-$normalize-case-configuration)
+(define-test-case (test-$normalize-configuration-forms)
 
   (define-test ("[case, test] -> [case, test, #f]")
     (equal? '((define-case-wrapper case-wrapper-contents)
               (define-test-wrapper test-wrapper-contents)
               #f)
-      ($ ($quote ($normalize-case-configuration
+      ($ ($quote ($normalize-configuration-forms
                    '((define-case-wrapper case-wrapper-contents)
                      (define-test-wrapper test-wrapper-contents)) ))) ) )
 
@@ -136,7 +138,7 @@
     (equal? '((define-case-wrapper case-wrapper-contents)
               (define-test-wrapper test-wrapper-contents)
               #f)
-      ($ ($quote ($normalize-case-configuration
+      ($ ($quote ($normalize-configuration-forms
                    '((define-test-wrapper test-wrapper-contents)
                      (define-case-wrapper case-wrapper-contents)) ))) ) )
 
@@ -144,50 +146,50 @@
     (equal? '((define-case-wrapper case-wrapper-contents)
               (define-test-wrapper test-wrapper-contents)
               (define-fixture      fixture-contents))
-      ($ ($quote ($normalize-case-configuration
+      ($ ($quote ($normalize-configuration-forms
                    '((define-test-wrapper test-wrapper-contents)
                      (define-fixture      fixture-contents)
                      (define-case-wrapper case-wrapper-contents)) ))) ) )
 
   (define-test ("[case] -> [case, #f, #f]")
     (equal? '((define-case-wrapper case-wrapper-contents) #f #f)
-      ($ ($quote ($normalize-case-configuration
+      ($ ($quote ($normalize-configuration-forms
                    '((define-case-wrapper case-wrapper-contents)) ))) ) )
 
   (define-test ("[test] -> [#f, test, #f]")
     (equal? '(#f (define-test-wrapper test-wrapper-contents) #f)
-      ($ ($quote ($normalize-case-configuration
+      ($ ($quote ($normalize-configuration-forms
                    '((define-test-wrapper test-wrapper-contents)) ))) ) )
 
   (define-test ("[defs] -> [#f, #f, defs]")
     (equal? '(#f #f (define-fixture fixture-contents))
-      ($ ($quote ($normalize-case-configuration
+      ($ ($quote ($normalize-configuration-forms
                    '((define-fixture fixture-contents)) ))) ) )
 
   (define-test ("[] -> [#f, #f, #f]")
     (equal? '(#f #f #f)
-      ($ ($quote ($normalize-case-configuration '()))) ) )
+      ($ ($quote ($normalize-configuration-forms '()))) ) )
 )
-(verify-test-case! test-$normalize-case-configuration)
+(verify-test-case! test-$normalize-configuration-forms)
 
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ;
 
-(define-syntax $define-only-case-wrapper
-  (syntax-rules (quote)
-    ((_ s '(case test defs))
-     ($ s ($define-case-wrapper 'case)) ) ) )
-
-(define-syntax $define-only-test-wrapper
-  (syntax-rules (quote)
-    ((_ s '(case test defs))
-     ($ s ($define-test-wrapper 'test)) ) ) )
-
-(define-syntax $quote-only-fixture-defs
-  (syntax-rules (quote)
-    ((_ s '(case test defs))
-     ($ s ($quote ($define-fixture 'defs))) ) ) )
-
 (define-test-case (test-$ensure-default-configuration)
+
+  (define-syntax $define-only-case-wrapper
+    (syntax-rules (quote)
+      ((_ s '(case test defs))
+       ($ s ($define-case-wrapper 'case)) ) ) )
+
+  (define-syntax $define-only-test-wrapper
+    (syntax-rules (quote)
+      ((_ s '(case test defs))
+       ($ s ($define-test-wrapper 'test)) ) ) )
+
+  (define-syntax $quote-only-fixture-defs
+    (syntax-rules (quote)
+      ((_ s '(case test defs))
+       ($ s ($quote ($define-fixture 'defs))) ) ) )
 
   (define-test ("[case, #f, #f]")
     (define test-wrapper
