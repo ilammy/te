@@ -1,12 +1,11 @@
 #!r6rs
 (library (te sr ck-lists)
 
-  (export $cons $append $map $reverse $span $filter $partition $group-by)
+  (export $cons $map $reverse $span)
 
   (import (rnrs base)
           (te sr ck)
-          (te sr ck-kernel)
-          (te sr ck-predicates))
+          (te sr ck-kernel))
 
   (begin
 
@@ -14,18 +13,13 @@
       (syntax-rules (quote)
         ((_ s 'a 'd) ($ s '(a . d))) ) )
 
-    (define-syntax $append
-      (syntax-rules (quote)
-        ((_ s '(l1 ...) '(l2 ...)) ($ s '(l1 ... l2 ...))) ) )
-
     (define-syntax $map
       (syntax-rules (quote)
-        ((_ s '(p ...) 'list)                ($ s ($map '(p ...) 'list '())))
-        ((_ s 'proc    'list)                ($ s ($map '(proc)  'list '())))
-
-        ((_ s '(p ...) '()      'result)     ($ s 'result))
+        ((_ s 'proc    'list)                ($ s ($map 'proc 'list '())))
+        ((_ s 'proc    '()      'result)     ($ s 'result))
         ((_ s '(p ...) '(a . d) 'result)     ($ s ($map '(p ...) 'd 'result (p ... 'a))))
-        ((_ s '(p ...) 'd '(result ...) 'aa) ($ s ($map '(p ...) 'd '(result ... aa)))) ) )
+        ((_ s 'proc    '(a . d) 'result)     ($ s ($map 'proc    'd 'result (proc 'a))))
+        ((_ s 'proc    'd '(result ...) 'aa) ($ s ($map 'proc    'd '(result ... aa)))) ) )
 
     (define-syntax $reverse
       (syntax-rules (quote)
@@ -35,64 +29,10 @@
 
     (define-syntax $span
       (syntax-rules (quote)
-        ((_ s '(p ...) 'list) ($ s ($span '(p ...) 'list '())))
-        ((_ s 'pred    'list) ($ s ($span '(pred)  'list '())))
+        ((_ s 'pred 'list)                ($ s ($span 'pred 'list '())))
+        ((_ s 'pred '()       'head)      ($ s '(head ())))
+        ((_ s 'pred '(a . d) '(head ...)) ($ s ($if (pred 'a)
+                                                   '($span 'pred 'd '(head ... a))
+                                                   ''((head ...) (a . d)) ))) ) )
 
-        ((_ s '(p ...) '() 'head) ($ s '(head ())))
-
-        ((_ s '(p ...) '(a . d) '(head ...))
-         ($ s ($if (p ... 'a)
-                  '($span '(p ...) 'd '(head ... a))
-                  ''((head ...) (a . d)) )) ) ) )
-
-    (define-syntax $filter
-      (syntax-rules (quote)
-        ((_ s '(p ...) 'list) ($ s ($filter '(p ...) 'list '())))
-        ((_ s 'pred    'list) ($ s ($filter '(pred)  'list '())))
-
-        ((_ s '(p ...) '() 'result) ($ s 'result))
-
-        ((_ s '(p ...) '(a . d) '(result ...))
-         ($ s ($filter '(p ...) 'd ($if (p ... 'a)
-                                       ''(result ... a)
-                                       ''(result ...) ))) ) ) )
-    (define-syntax $partition
-      (syntax-rules (quote)
-        ((_ s '(p ...) 'list) ($ s ($partition '(p ...) 'list '() '())))
-        ((_ s 'pred    'list) ($ s ($partition '(pred)  'list '() '())))
-
-        ((_ s '(p ...) '() 't 'f) ($ s '(t f)))
-
-        ((_ s '(p ...) '(a . d) '(t ...) '(f ...))
-         ($ s ($if (p ... 'a)
-                  '($partition '(p ...) 'd '(t ... a) '(f ...))
-                  '($partition '(p ...) 'd '(t ...) '(f ... a)) )) ) ) )
-
-    (define-syntax $same-group?
-      (syntax-rules (quote)
-        ((_ s '(g ...) 'a 'b) ($ s ($same? (g ... 'a) (g ... 'b)))) ) )
-
-    (define-syntax $group-list:insert
-      (syntax-rules (quote)
-        ((_ s 'g... 'x 'groups) ($ s ($group-list:insert 'g... 'x 'groups '())))
-
-        ;; If there is no suitable group for the element then create a new one.
-        ((_ s 'g... 'x '() '(groups ...)) ($ s '(groups ... (x))))
-
-        ;; Check the element against the next group. If it is the right one
-        ;; then append the element and get out. If not then continue scanning.
-        ((_ s 'g... 'x '((y ys ...) other ...) '(groups ...))
-         ($ s ($if ($same-group? 'g... 'x 'y)
-                  ''(groups ... (y ys ... x) other ...)
-                  '($group-list:insert 'g... 'x
-                     '(other ...) '(groups ... (y ys ...)) ) )) ) ) )
-
-    (define-syntax $group-by
-      (syntax-rules (quote)
-        ((_ s '(g ...) 'list)            ($ s ($group-by '(g ...) 'list '())))
-        ((_ s 'group   'list)            ($ s ($group-by '(group) 'list '())))
-        ((_ s '(g ...) '()      'result) ($ s 'result))
-        ((_ s '(g ...) '(a . d) 'result) ($ s ($group-by '(g ...) 'd
-                                                ($group-list:insert
-                                                  '(g ...) 'a 'result ) ))) ) )
 ) )

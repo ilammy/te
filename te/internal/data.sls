@@ -1,16 +1,17 @@
 #!r6rs
 (library (te internal data)
 
-  (export make-test-case   test-case?
+  (export make-test-case
             case-name
             test-wrap
             case-wrap
             test-list
 
-          make-test   test?
+          make-test
             test-name
             test-body
-            test-data)
+
+          test? test-case?)
 
   (import (rnrs base)
           (rnrs records syntactic))
@@ -27,7 +28,6 @@
     (define-record-type (test make-test test?)
       (fields
         (immutable name test-name)
-        (immutable body test-body)
-        (immutable data test-data) ) )
+        (immutable body test-body) ) )
 
 ) )
