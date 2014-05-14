@@ -158,3 +158,57 @@
     (verify-test-case! defs+fixtures) )
 )
 (verify-test-case! definitions)
+
+; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ;
+
+(define-test-case (data-driven "Data-driven testing")
+
+  (define-test ("Simple data")
+    (define-test-case (simple)
+      (define-test ("Addition" a b sum)
+        #('((0 1 1) (2 2 4)))
+        (= (+ a b) sum) )
+    )
+    (verify-test-case! simple) )
+
+  (define-test ("Generated data")
+    (define (my-map proc list)
+      (let loop ((result '())
+                 (list list))
+        (if (null? list) (reverse result)
+            (loop (cons (proc (car list)) result)
+                  (cdr list) ) ) ) )
+
+    (define (map-combinatorial proc list1 list2)
+      (apply append
+        (map (lambda (elt1)
+          (map (lambda (elt2)
+            (proc elt1 elt2) )
+            list2 ) )
+          list1 ) ) )
+
+    (define-test-case (test-my-map)
+      (define-test ("Empty") (null? (my-map (lambda (x) x) '())))
+
+      (define procs
+        (list (lambda (x) x)
+              (lambda (x) (equal? x 1))
+              (lambda (x) (if (number? x) (* x 57) 'banana)) ) )
+
+      (define lists
+        (list '(1 2 3 4)
+              '(foo bar)
+              (list + * - /)
+              '()
+              '("a" 4 'bark '(42)) ) )
+
+      (define-test ("Orig. map" proc list expected)
+        #((map-combinatorial
+            (lambda (proc list)
+              `(,proc ,list ,(map proc list)) )
+            procs lists ))
+        (equal? (my-map proc list) expected) )
+    )
+    (verify-test-case! test-my-map) )
+)
+(verify-test-case! data-driven)

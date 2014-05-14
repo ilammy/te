@@ -24,7 +24,9 @@
   (let ((run   (list-ref test-case-body 1))
         (tests (list-ref test-case-body 2)))
     (define (test-passed? test)
-      (run ((test-body test))) )
+      (define (data-okay? data)
+        (run (apply (test-body test) data)) )
+      (every data-okay? ((test-data test))) )
     (every test-passed? tests) ) )
 
 (define-syntax $define-case-body
@@ -53,14 +55,15 @@
   (define-test ("define-test + case wrapper")
     (define-case-body processed
       '((define-case-wrapper (run) (cons 1 2) (run))
-        (define-test () 1) (define-test () 2)) )
+        (define-test (Named with parameters) #(9) 1)
+        (define-test () 2)) )
 
     (valid-test-case-body? processed 2) )
 
   (define-test ("define-test + test wrapper")
     (define-case-body processed
       '((define-test-wrapper (run) (cons 1 2) (run))
-        (define-test () 1)) )
+        (define-test ("Named") 1)) )
 
     (valid-test-case-body? processed 1) )
 
@@ -76,7 +79,8 @@
   (define-test ("define-test + fixture")
     (define-case-body processed
       '((define-fixture (define some 'x))
-        (define-test () 1) (define-test () 2)) )
+        (define-test ("Named" with parameters) #(9) 1)
+        (define-test () 2)) )
 
     (valid-test-case-body? processed 2) )
 
@@ -94,7 +98,7 @@
       '((define-fixture (define some 'x))
         (define-test-wrapper (run) (cons 3 4) (run))
         (define-case-wrapper (run) (cons 1 2) (run))
-        (define-test () 1)) )
+        (define-test ("Named") 1)) )
 
     (valid-test-case-body? processed 1) )
 
@@ -257,6 +261,42 @@
           (and (= a 30)
                (= b 21)
                (= c 12) ) )) )
+
+    (all-test-pass? processed) )
+)
+(verify-test-case! test-$process-case-body:internal-defs-handling)
+
+; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ;
+
+(define-test-case (test-$process-case-body:data-handling)
+
+  (define-test ("visibility")
+    (define-case-body processed
+      '((define a 10)
+        (define-test-wrapper (run a) (run 20))
+        (define-fixture (define a 30))
+
+        (define-test ("visibility in data lambda" data) #(`((,a)))
+          (= data 10) )) )
+
+    (all-test-pass? processed) )
+
+  (define-test ("binding priority")
+    (define-case-body processed
+      '((define-values (a b c d) (values 10 11 12 13))
+
+        (define-test-wrapper (run a b c)
+          (run 20 21 22) )
+
+        (define-fixture
+          (define a 30)
+          (define b 31) )
+
+        (define-test ("lexical structure" a) #('((40)))
+          (and (= a 40)
+               (= b 31)
+               (= c 22)
+               (= d 13) ) )) )
 
     (all-test-pass? processed) )
 )
