@@ -1,9 +1,11 @@
 #!r6rs
 
 (import (rnrs base)
+        (rnrs exceptions)
         (only (racket base) define-values)
         (only (srfi :1) every)
         (te)
+        (te conditions assertions)
         (te utils verify-test-case)
         (te macros parse-test-case-body)
         (te internal data)
@@ -25,7 +27,9 @@
         (tests (list-ref test-case-body 2)))
     (define (test-passed? test)
       (define (data-okay? data)
-        (run (apply (test-body test) data)) )
+        (guard (condition (#t #f))
+          (run (apply (test-body test) data))
+          #t ) )
       (every data-okay? ((test-data test))) )
     (every test-passed? tests) ) )
 
@@ -50,7 +54,7 @@
     (define-case-body processed
       '((define-test () 1) (define-test () 2)) )
 
-    (valid-test-case-body? processed 2) )
+    (assert-true (valid-test-case-body? processed 2)) )
 
   (define-test ("define-test + case wrapper")
     (define-case-body processed
@@ -58,14 +62,14 @@
         (define-test (Named with parameters) #(9) 1)
         (define-test () 2)) )
 
-    (valid-test-case-body? processed 2) )
+    (assert-true (valid-test-case-body? processed 2)) )
 
   (define-test ("define-test + test wrapper")
     (define-case-body processed
       '((define-test-wrapper (run) (cons 1 2) (run))
         (define-test ("Named") 1)) )
 
-    (valid-test-case-body? processed 1) )
+    (assert-true (valid-test-case-body? processed 1)) )
 
   (define-test ("define-test + both wrappers")
     (define-case-body processed
@@ -74,7 +78,7 @@
         (define-test () 1) (define-test () 2)
         (define-test () 3) (define-test () 4)) )
 
-    (valid-test-case-body? processed 4) )
+    (assert-true (valid-test-case-body? processed 4)) )
 
   (define-test ("define-test + fixture")
     (define-case-body processed
@@ -82,7 +86,7 @@
         (define-test ("Named" with parameters) #(9) 1)
         (define-test () 2)) )
 
-    (valid-test-case-body? processed 2) )
+    (assert-true (valid-test-case-body? processed 2)) )
 
   (define-test ("define-test + fixture + wrappers 1")
     (define-case-body processed
@@ -91,7 +95,7 @@
         (define-test-wrapper (run) (cons 3 4) (run))
         (define-test () 1) (define-test () 2)) )
 
-    (valid-test-case-body? processed 2) )
+    (assert-true (valid-test-case-body? processed 2)) )
 
   (define-test ("define-test + fixture + wrappers 2")
     (define-case-body processed
@@ -100,7 +104,7 @@
         (define-case-wrapper (run) (cons 1 2) (run))
         (define-test ("Named") 1)) )
 
-    (valid-test-case-body? processed 1) )
+    (assert-true (valid-test-case-body? processed 1)) )
 
   (define-test ("define-test + fixture + wrappers + internal defs")
     (define-case-body processed
@@ -114,7 +118,7 @@
         (define-test () 1)
         (define e 'qux)) )
 
-    (valid-test-case-body? processed 1) )
+    (assert-true (valid-test-case-body? processed 1)) )
 )
 (verify-test-case! test-$parse-test-case-body:syntax)
 
@@ -130,8 +134,8 @@
 
     (let ((case-wrapper (list-ref processed 0))
           (test-wrapper (list-ref processed 1)))
-      (and (equal? (case-wrapper (lambda () #t)) 'CASE-HIJACK!)
-           (equal? (test-wrapper (lambda () #t)) 'TEST-HIJACK!) ) ) )
+      (assert-equal 'CASE-HIJACK! (case-wrapper (lambda () #t)))
+      (assert-equal 'TEST-HIJACK! (test-wrapper (lambda () #t))) ) )
 
   (define-test ("inverted wrapper order")
     (define-case-body processed
@@ -141,14 +145,14 @@
 
     (let ((case-wrapper (list-ref processed 0))
           (test-wrapper (list-ref processed 1)))
-      (and (equal? (case-wrapper (lambda () #t)) 'CASE-HIJACK!)
-           (equal? (test-wrapper (lambda () #t)) 'TEST-HIJACK!) ) ) )
+      (assert-equal 'CASE-HIJACK! (case-wrapper (lambda () #t)))
+      (assert-equal 'TEST-HIJACK! (test-wrapper (lambda () #t))) ) )
 
   (define-test ("test wrapper argument extraction")
     (define-case-body processed
       '((define-test-wrapper (run woobley wobbley) (run 'zog 'bork))
         (define-test ("product = 42")
-          (= 42 (* woobley wobbley)) )) )
+          (assert-true (= 42 (* woobley wobbley))) )) )
 
     (let* ((tests (list-ref processed 2))
            (test  (list-ref tests     0)))
@@ -166,17 +170,17 @@
           (define a 10)
           (define b 20)
           (define (dup x) (* 2 x)) )
-        (define-test () (= 60 (dup (+ a b))))
-        (define-test () (= a (- b a)))) )
+        (define-test () (assert-true (= 60 (dup (+ a b)))))
+        (define-test () (assert-true (= a (- b a))))) )
 
     (all-test-pass? processed) )
 
   (define-test ("fixture mutation")
     (define-case-body processed
       '((define-fixture (define a 10))
-        (define-test () (= a 10))
-        (define-test () (set! a 20) (= a 20))
-        (define-test () (= a 10))) )
+        (define-test () (assert-true (= a 10)))
+        (define-test () (set! a 20) (assert-true (= a 20)))
+        (define-test () (assert-true (= a 10)))) )
 
     (all-test-pass? processed) )
 
@@ -186,7 +190,7 @@
           (define-syntax dup
             (syntax-rules ()
               ((_ x) (* 2 x)) ) ) )
-        (define-test () (= 40 (dup 20)))) )
+        (define-test () (assert-true (= 40 (dup 20))))) )
 
     (all-test-pass? processed) )
 
@@ -194,7 +198,7 @@
     (define-case-body processed
       '((define-test-wrapper (run foo) (run 20))
         (define-fixture (define bar 10))
-        (define-test () (= 30 (+ foo bar)))) )
+        (define-test () (assert-true (= 30 (+ foo bar))))) )
 
     (all-test-pass? processed) )
 
@@ -202,7 +206,7 @@
     (define-case-body processed
       '((define-test-wrapper (run foo) (run 20))
         (define-fixture (define foo 10))
-        (define-test () (= 10 foo))) )
+        (define-test () (assert-true (= 10 foo)))) )
 
     (all-test-pass? processed) )
 )
@@ -215,9 +219,9 @@
   (define-test ("simple definitions")
     (define-case-body processed
       '((define x 1)
-        (define-test () (= x 1))
+        (define-test () (assert-true (= x 1)))
         (define y 2)
-        (define-test () (= (* 2 x) y))) )
+        (define-test () (assert-true (= (* 2 x) y)))) )
 
     (all-test-pass? processed) )
 
@@ -226,13 +230,13 @@
       '((define-syntax duplicate
           (syntax-rules ()
             ((_ x) (* 2 x)) ) )
-        (define-test () (= (duplicate 4) 8))) )
+        (define-test () (assert-true (= (duplicate 4) 8)))) )
 
     (all-test-pass? processed) )
 
   (define-test ("forward definitions")
     (define-case-body processed
-      '((define-test () (= y 3))
+      '((define-test () (assert-true (= y 3)))
         (define x 1)
         (define y (* 3 x))) )
 
@@ -242,7 +246,7 @@
     (define-case-body processed
       '((define-test-wrapper (run foo) (run (* 2 base)))
         (define-fixture (define bar (* 3 base)))
-        (define-test () (= (* 5 base) (+ foo bar)))
+        (define-test () (assert-true (= (* 5 base) (+ foo bar))))
         (define base 9)) )
 
     (all-test-pass? processed) )
@@ -258,9 +262,9 @@
           (define a 30) )
 
         (define-test ("lexical structure")
-          (and (= a 30)
-               (= b 21)
-               (= c 12) ) )) )
+          (assert-true (= a 30))
+          (assert-true (= b 21))
+          (assert-true (= c 12)) ) ) )
 
     (all-test-pass? processed) )
 )
@@ -277,7 +281,7 @@
         (define-fixture (define a 30))
 
         (define-test ("visibility in data lambda" data) #(`((,a)))
-          (= data 10) )) )
+          (assert-true (= data 10)) )) )
 
     (all-test-pass? processed) )
 
@@ -293,10 +297,10 @@
           (define b 31) )
 
         (define-test ("lexical structure" a) #('((40)))
-          (and (= a 40)
-               (= b 31)
-               (= c 22)
-               (= d 13) ) )) )
+          (assert-true (= a 40))
+          (assert-true (= b 31))
+          (assert-true (= c 22))
+          (assert-true (= d 13)) )) )
 
     (all-test-pass? processed) )
 )

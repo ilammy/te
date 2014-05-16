@@ -30,8 +30,8 @@
 
     (let ((unique-object (list 'unique)))
       (guard (condition
-              (#t (assert-equal? "Message" (condition-message condition))
-                  (assert-eq? unique-object (condition-object condition)) ) )
+              (#t (assert-equal "Message" (condition-message condition))
+                  (assert-eq unique-object (condition-object condition)) ) )
         (signal "Message" unique-object) ) ) )
 
   (define-test ("Default contents" signal)
