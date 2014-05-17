@@ -1,32 +1,37 @@
 #!r6rs
 (library (te conditions assertions)
 
-  (export assert-eq   assert-equal
-          assert-true assert-false)
+  (export assert-true assert-false
+          assert-eq assert-eqv assert-equal)
 
   (import (except (rnrs base) error)
-          (te conditions builtin-conditions))
+          (te conditions define-assertion))
 
   (begin
 
-    (define (assert-true value)
-      (if (not (eq? #f value)) value
-          (fail "Assertion failed"
-            `(assert-true ,value) ) ) )
+    (define-assertion (assert-true value)
+      (if (not (eq? #f value))
+          (assert-success value)
+          (assert-failure) ) )
 
-    (define (assert-false value)
-      (if (eq? #f value) value
-          (fail "Assertion failed"
-            `(assert-false ,value) ) ) )
+    (define-assertion (assert-false value)
+      (if (eq? #f value)
+          (assert-success value)
+          (assert-failure) ) )
 
-    (define (assert-eq expected actual)
-      (if (eq? expected actual) actual
-          (fail "Assertion failed"
-            `(assert-eq ,expected ,actual) ) ) )
+    (define-assertion (assert-eq expected actual)
+      (if (eq? expected actual)
+          (assert-success actual)
+          (assert-failure) ) )
 
-    (define (assert-equal expected actual)
-      (if (equal? expected actual) actual
-          (fail "Assertion failed"
-            `(assert-equal ,expected ,actual) ) ) )
+    (define-assertion (assert-eqv expected actual)
+      (if (eqv? expected actual)
+          (assert-success actual)
+          (assert-failure) ) )
+
+    (define-assertion (assert-equal expected actual)
+      (if (equal? expected actual)
+          (assert-success actual)
+          (assert-failure) ) )
 
 ) )
