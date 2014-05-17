@@ -152,7 +152,7 @@
     (define-case-body processed
       '((define-test-wrapper (run woobley wobbley) (run 'zog 'bork))
         (define-test ("product = 42")
-          (assert-true (= 42 (* woobley wobbley))) )) )
+          (assert-= 42 (* woobley wobbley)) )) )
 
     (let* ((tests (list-ref processed 2))
            (test  (list-ref tests     0)))
@@ -170,17 +170,17 @@
           (define a 10)
           (define b 20)
           (define (dup x) (* 2 x)) )
-        (define-test () (assert-true (= 60 (dup (+ a b)))))
-        (define-test () (assert-true (= a (- b a))))) )
+        (define-test () (assert-= 60 (dup (+ a b))))
+        (define-test () (assert-= a (- b a)))) )
 
     (all-test-pass? processed) )
 
   (define-test ("fixture mutation")
     (define-case-body processed
       '((define-fixture (define a 10))
-        (define-test () (assert-true (= a 10)))
-        (define-test () (set! a 20) (assert-true (= a 20)))
-        (define-test () (assert-true (= a 10)))) )
+        (define-test () (assert-= a 10))
+        (define-test () (set! a 20) (assert-= a 20))
+        (define-test () (assert-= a 10))) )
 
     (all-test-pass? processed) )
 
@@ -190,7 +190,7 @@
           (define-syntax dup
             (syntax-rules ()
               ((_ x) (* 2 x)) ) ) )
-        (define-test () (assert-true (= 40 (dup 20))))) )
+        (define-test () (assert-= 40 (dup 20)))) )
 
     (all-test-pass? processed) )
 
@@ -198,7 +198,7 @@
     (define-case-body processed
       '((define-test-wrapper (run foo) (run 20))
         (define-fixture (define bar 10))
-        (define-test () (assert-true (= 30 (+ foo bar))))) )
+        (define-test () (assert-= 30 (+ foo bar)))) )
 
     (all-test-pass? processed) )
 
@@ -206,7 +206,7 @@
     (define-case-body processed
       '((define-test-wrapper (run foo) (run 20))
         (define-fixture (define foo 10))
-        (define-test () (assert-true (= 10 foo)))) )
+        (define-test () (assert-= 10 foo))) )
 
     (all-test-pass? processed) )
 )
@@ -219,9 +219,9 @@
   (define-test ("simple definitions")
     (define-case-body processed
       '((define x 1)
-        (define-test () (assert-true (= x 1)))
+        (define-test () (assert-= x 1))
         (define y 2)
-        (define-test () (assert-true (= (* 2 x) y)))) )
+        (define-test () (assert-= (* 2 x) y))) )
 
     (all-test-pass? processed) )
 
@@ -230,13 +230,13 @@
       '((define-syntax duplicate
           (syntax-rules ()
             ((_ x) (* 2 x)) ) )
-        (define-test () (assert-true (= (duplicate 4) 8)))) )
+        (define-test () (assert-= (duplicate 4) 8))) )
 
     (all-test-pass? processed) )
 
   (define-test ("forward definitions")
     (define-case-body processed
-      '((define-test () (assert-true (= y 3)))
+      '((define-test () (assert-= y 3))
         (define x 1)
         (define y (* 3 x))) )
 
@@ -246,7 +246,7 @@
     (define-case-body processed
       '((define-test-wrapper (run foo) (run (* 2 base)))
         (define-fixture (define bar (* 3 base)))
-        (define-test () (assert-true (= (* 5 base) (+ foo bar))))
+        (define-test () (assert-= (* 5 base) (+ foo bar)))
         (define base 9)) )
 
     (all-test-pass? processed) )
@@ -262,9 +262,9 @@
           (define a 30) )
 
         (define-test ("lexical structure")
-          (assert-true (= a 30))
-          (assert-true (= b 21))
-          (assert-true (= c 12)) ) ) )
+          (assert-= a 30)
+          (assert-= b 21)
+          (assert-= c 12) ) ) )
 
     (all-test-pass? processed) )
 )
@@ -281,7 +281,7 @@
         (define-fixture (define a 30))
 
         (define-test ("visibility in data lambda" data) #(`((,a)))
-          (assert-true (= data 10)) )) )
+          (assert-= data 10) )) )
 
     (all-test-pass? processed) )
 
@@ -297,10 +297,10 @@
           (define b 31) )
 
         (define-test ("lexical structure" a) #('((40)))
-          (assert-true (= a 40))
-          (assert-true (= b 31))
-          (assert-true (= c 22))
-          (assert-true (= d 13)) )) )
+          (assert-= a 40)
+          (assert-= b 31)
+          (assert-= c 22)
+          (assert-= d 13) )) )
 
     (all-test-pass? processed) )
 )

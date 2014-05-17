@@ -84,9 +84,9 @@
   (define-test ("parameterized body 2")
     (define test ($ ($define-test '(a b) '() '(define-test () (+ a b)))))
 
-    (assert-true (=  0 (((test-body test)) -1 +1)))
-    (assert-true (= 42 (((test-body test)) 21 21)))
-    (assert-true (=  3 (((test-body test))  1  2))) )
+    (assert-=  0 (((test-body test)) -1 +1))
+    (assert-= 42 (((test-body test)) 21 21))
+    (assert-=  3 (((test-body test))  1  2)) )
 )
 (verify-test-case! test-$define-test-bodies)
 
@@ -100,7 +100,7 @@
            '((define a 10) (define b 20))
            '(define-test () (+ a b)) )) )
 
-    (assert-true (= 30 (((test-body test))))) )
+    (assert-= 30 (((test-body test)))) )
 )
 (verify-test-case! test-$define-test-fixtures)
 
