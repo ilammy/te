@@ -19,8 +19,11 @@
 
           assert-ci=    assert-ci<>
           assert-ci<    assert-ci<=
-          assert-ci>    assert-ci>=)
+          assert-ci>    assert-ci>=
+
+          assert-raises)
 
   (import (te conditions assertions implicit)
+          (te conditions assertions exceptions)
           (te conditions assertions comparison)
           (te conditions assertions equivalence)) )

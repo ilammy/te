@@ -4,7 +4,6 @@
   (export assert-fails)
 
   (import (except (rnrs base) error)
-          (rnrs control)
           (rnrs exceptions)
           (te conditions define-assertion)
           (te internal test-conditions))
