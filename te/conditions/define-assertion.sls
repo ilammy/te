@@ -8,6 +8,7 @@
   (import (rnrs base)
           (rnrs control)
           (rnrs exceptions)
+          (te conditions common assertion-results)
           (only (te conditions builtin-conditions) fail))
 
   (begin
@@ -19,15 +20,5 @@
            (let-values (((passed? obj/msg) (let () body1 body2 ...)))
              (if passed? obj/msg
                  (fail obj/msg `(name ,args ... ,@rest)) ) ) ) ) ) )
-
-    (define assert-success
-      (case-lambda
-        (()    (values #t #f))
-        ((obj) (values #t obj)) ) )
-
-    (define assert-failure
-      (case-lambda
-        (()    (values #f "Assertion failed"))
-        ((msg) (values #f msg)) ) )
 
 ) )

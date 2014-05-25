@@ -3,9 +3,10 @@
 (import (rnrs base)
         (te)
         (te utils verify-test-case)
+        (te conditions assertions comparison)
         (te conditions assertions equivalence)
         (te conditions assertions implicit)
-        (te conditions assertions test-utils))
+        (te conditions common test-utils))
 
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ;
 
@@ -76,7 +77,7 @@
 
   (define-test ("assert-finite accepts finite numbers" number)
     #(finite-numbers)
-    (assert-true (= number (assert-finite number))) )
+    (assert-= number (assert-finite number)) )
 
   (define-test ("assert-finite rejects infinite numbers" number)
     #(infinite-numbers)
@@ -84,7 +85,7 @@
 
   (define-test ("assert-infinite accepts infinite numbers" number)
     #(infinite-numbers)
-    (assert-true (= number (assert-infinite number))) )
+    (assert-= number (assert-infinite number)) )
 
   (define-test ("assert-infinite rejects finite numbers" number)
     #(finite-numbers)

@@ -5,7 +5,7 @@
         (te utils verify-test-case)
         (te conditions assertions comparison)
         (te conditions assertions equivalence)
-        (te conditions assertions test-utils))
+        (te conditions common test-utils))
 
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ;
 
@@ -27,15 +27,15 @@
 
   ; -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  - ;
 
-  (define-test ("assert-<> accepts unequal objects and returns expected" expected actual)
+  (define-test ("assert-not= accepts unequal objects and returns expected" expected actual)
     #((list '(1 2) '("y" "x") '(#\F #\5) '(one two)))
-    (assert-equal expected (assert-<> expected actual)) )
+    (assert-equal expected (assert-not= expected actual)) )
 
-  (define-test ("assert-<> accepts multiple objects and returns the first")
-    (assert-equal "1" (assert-<> "1" "\x38;" "5" (symbol->string 'foo))) )
+  (define-test ("assert-not= accepts multiple objects and returns the first")
+    (assert-equal "1" (assert-not= "1" "\x38;" "5" (symbol->string 'foo))) )
 
-  (define-test ("assert-<> rejects objects of different types")
-    (assert-fails (assert-<> '1 "2" #\3)) )
+  (define-test ("assert-not= rejects objects of different types")
+    (assert-fails (assert-not= '1 "2" #\3)) )
 
   ; -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  - ;
 
@@ -112,15 +112,15 @@
 
   ; -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  - ;
 
-  (define-test ("assert-ci<> accepts CI-unequal objects and returns expected" expected actual)
+  (define-test ("assert-not-ci= accepts CI-unequal objects and returns expected" expected actual)
     #((list '(#\a #\B) '("foo" "BAR") '(#\4 #\1)))
-    (assert-equal expected (assert-ci<> expected actual)) )
+    (assert-equal expected (assert-not-ci= expected actual)) )
 
-  (define-test ("assert-ci<> accepts multiple CI-unequal objects and returns first")
-    (assert-equal "foo" (assert-ci<> "foo" "Bar" "Zog" "FOO")) )
+  (define-test ("assert-not-ci= accepts multiple CI-unequal objects and returns first")
+    (assert-equal "foo" (assert-not-ci= "foo" "Bar" "Zog" "FOO")) )
 
-  (define-test ("assert-ci<> rejects objects of different type")
-    (assert-fails (assert-ci<> "1" "2" #\3)) )
+  (define-test ("assert-not-ci= rejects objects of different type")
+    (assert-fails (assert-not-ci= "1" "2" #\3)) )
 )
 (verify-test-case! test-assert-equality:case-insensitive)
 

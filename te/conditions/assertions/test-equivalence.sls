@@ -4,7 +4,7 @@
         (te)
         (te utils verify-test-case)
         (te conditions assertions equivalence)
-        (te conditions assertions test-utils))
+        (te conditions common test-utils))
 
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ;
 

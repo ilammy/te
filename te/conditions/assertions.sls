@@ -11,13 +11,13 @@
           assert-nan    assert-not-nan
           assert-finite assert-infinite
 
-          assert-=      assert-<>
+          assert-=      assert-not=
           assert-<      assert-<=
           assert->      assert->=
 
           assert-approx=
 
-          assert-ci=    assert-ci<>
+          assert-ci=    assert-not-ci=
           assert-ci<    assert-ci<=
           assert-ci>    assert-ci>=
 
