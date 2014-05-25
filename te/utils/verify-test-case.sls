@@ -6,7 +6,9 @@
 
   (import (rnrs base)
           (rnrs control)
-          (te internal data))
+          (rnrs exceptions)
+          (te internal data)
+          (te internal test-conditions))
 
   (begin
 
@@ -37,7 +39,11 @@
                                     (if (= data-passed data-total) failed-tests
                                         (cons (if test-name test-name test-n)
                                               failed-tests ) ) )
-                          (if (test-wrap (apply test-body (car data)))
+                          (if (guard (condition
+                                       ((test-condition? condition) #f)
+                                       (else                        #f) )
+                                (test-wrap (apply test-body (car data)))
+                                #t )
                               (next-sample (+ 1 data-passed) (+ 1 data-total) (cdr data))
                               (next-sample (+ 0 data-passed) (+ 1 data-total) (cdr data)) ) ) ) ) ) ) ) ) )
       #t )

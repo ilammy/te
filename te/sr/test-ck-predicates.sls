@@ -2,17 +2,18 @@
 
 (import (rnrs base)
         (te)
+        (te conditions assertions)
         (te utils verify-test-case)
         (te sr ck)
         (te sr ck-predicates))
 
 (define-syntax true?
   (syntax-rules ()
-    ((_ expression) (equal? #t ($ expression))) ) )
+    ((_ expression) (assert-eq #t ($ expression))) ) )
 
 (define-syntax false?
   (syntax-rules ()
-    ((_ expression) (equal? #f ($ expression))) ) )
+    ((_ expression) (assert-eq #f ($ expression))) ) )
 
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ;
 

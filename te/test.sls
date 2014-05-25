@@ -2,6 +2,7 @@
 
 (import (rnrs base)
         (te)
+        (te conditions assertions)
         (te utils verify-test-case))
 
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ;
@@ -14,16 +15,16 @@
 
   (define-test ("Anonymous tests")
     (define-test-case (test-case "Anonymous tests")
-      (define-test () (= 3 (+ 1 2)))
-      (define-test () (= 42 (* 6 7))) )
+      (define-test () (assert-= 3 (+ 1 2)))
+      (define-test () (assert-= 42 (* 6 7))) )
 
     (verify-test-case! test-case) )
 
   (define-test ("Named tests")
     (define-test-case (named-tests)
-      (define-test ("Add") (= 3 (+ 1 2)))
-      (define-test ("Mul") (= 42 (* 6 7)))
-      (define-test ("eq?") (eq? 'foo 'foo)) )
+      (define-test ("Add") (assert-= 3 (+ 1 2)))
+      (define-test ("Mul") (assert-= 42 (* 6 7)))
+      (define-test ("eq?") (assert-eq 'foo 'foo)) )
 
     (verify-test-case! named-tests) )
 )
@@ -40,14 +41,14 @@
         (define y -6) )
 
       (define-test ("Access")
-        (= x 42) )
+        (assert-= x 42) )
 
       (define-test ("Modification")
         (set! x 56)
-        (= x 56) )
+        (assert-= x 56) )
 
       (define-test ("Access again")
-        (= x (* y -7)) )
+        (assert-= x (* y -7)) )
     )
     (verify-test-case! test-definitions) )
 
@@ -58,7 +59,7 @@
       (define-test-wrapper (run x y z)
         (run 1 2 3) )
 
-      (define-test () (= 6 (+ x y z)))
+      (define-test () (assert-= 6 (+ x y z)))
     )
     (verify-test-case! test-wrappers) )
 
@@ -71,7 +72,7 @@
       (define-case-wrapper (run)
         (set! outer-x 56) (run) )
 
-      (define-test () (= 56 outer-x))
+      (define-test () (assert-= 56 outer-x))
     )
     (verify-test-case! case-wrappers) )
 
@@ -87,7 +88,7 @@
       (define-case-wrapper (run)
         (set! outer-x 56) (run) )
 
-      (define-test () (= outer-x (* factor 28)))
+      (define-test () (assert-= outer-x (* factor 28)))
     )
     (verify-test-case! both-wrappers) )
 
@@ -103,7 +104,7 @@
       (define-test-wrapper (run factor)
         (run 2) )
 
-      (define-test () (= outer-x (* factor 28)))
+      (define-test () (assert-= outer-x (* factor 28)))
     )
     (verify-test-case! both-wrappers) )
 )
@@ -123,7 +124,7 @@
       (define x (add 3 7))
 
       (define-test ("Reference")
-        (= x 10) )
+        (assert-= x 10) )
     )
     (verify-test-case! simple-defs) )
 
@@ -131,14 +132,14 @@
 
     (define-test-case (internal-defs)
       (define-test ("Forward reference")
-        (= x 10) )
+        (assert-= x 10) )
 
       (define y 5)
       (define x (* 2 y))
 
       (define-test ("Modification") ; don't try this at home!
         (set! x 40)
-        (= x 40) )
+        (assert-= x 40) )
     )
     (verify-test-case! internal-defs) )
 
@@ -153,9 +154,9 @@
         (define y 88) )
 
       (define-test ("lexical structure")
-        (and (= x 5)
-             (= foo 6)
-             (= y 88) ) )
+        (assert-= x 5)
+        (assert-= foo 6)
+        (assert-= y 88) )
     )
     (verify-test-case! defs+fixtures) )
 )
@@ -169,7 +170,7 @@
     (define-test-case (simple)
       (define-test ("Addition" a b sum)
         #('((0 1 1) (2 2 4)))
-        (= (+ a b) sum) )
+        (assert-= (+ a b) sum) )
     )
     (verify-test-case! simple) )
 
@@ -209,7 +210,7 @@
             (lambda (proc list)
               `(,proc ,list ,(map proc list)) )
             procs lists ))
-        (equal? (my-map proc list) expected) )
+        (assert-equal expected (my-map proc list)) )
     )
     (verify-test-case! test-my-map) )
 )
