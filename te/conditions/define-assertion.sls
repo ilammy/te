@@ -17,8 +17,8 @@
       (syntax-rules ()
         ((_ (name args ... . rest) body1 body2 ...)
          (define (name args ... . rest)
-           (let-values (((passed? obj/msg) (let () body1 body2 ...)))
-             (if passed? obj/msg
-                 (fail obj/msg `(name ,args ... ,@rest)) ) ) ) ) ) )
+           (let-values (((passed? msg obj) (let () body1 body2 ...)))
+             (if passed? obj
+                 (fail msg (if obj obj `(name ,args ... ,@rest))) ) ) ) ) ) )
 
 ) )

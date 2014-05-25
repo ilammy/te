@@ -11,12 +11,13 @@
 
     (define assert-success
       (case-lambda
-        (()    (values #t #f))
-        ((obj) (values #t obj)) ) )
+        (()    (values #t #f #f))
+        ((obj) (values #t #f obj)) ) )
 
     (define assert-failure
       (case-lambda
-        (()    (values #f "Assertion failed"))
-        ((msg) (values #f msg)) ) )
+        (()        (values #f "Assertion failed" #f))
+        ((msg)     (values #f msg #f))
+        ((msg obj) (values #f msg obj)) ) )
 
 ) )

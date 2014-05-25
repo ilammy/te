@@ -4,10 +4,15 @@
   (export assert-that)
 
   (import (rnrs base)
-          (te conditions define-assertion))
+          (only (te conditions builtin-conditions) fail))
 
   (begin
 
-    (define-assertion (assert-that value constraint) (constraint value))
+    (define (assert-that value constraint)
+      (let-values (((passed? msg obj) (constraint value)))
+        (if passed? obj
+            (fail msg
+              (if (car obj) (cdr obj)
+                  `(assert-that ,value ,(cdr obj)) ) ) ) ) )
 
 ) )

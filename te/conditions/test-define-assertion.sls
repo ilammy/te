@@ -32,6 +32,18 @@
       (assert-odd 0)
       (raise "Should not return") ) )
 
+  (define-assertion (assert-zero number)
+    (if (= 0 number)
+        (assert-success number)
+        (assert-failure "Number is not zero" number) ) )
+
+  (define-test ("Override condition object when failed")
+    (guard (condition
+            ((test-condition? condition)
+             (assert-equal 13 (condition-object condition)) ) )
+      (assert-zero 13)
+      (raise "Should not return") ) )
+
   (define-test ("Return value when successful")
     (assert-true (= 13 (assert-odd 13))) )
 
