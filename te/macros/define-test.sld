@@ -5,10 +5,10 @@
 
   (import (scheme base)
           (te internal data)
-          (te sr ck)
-          (te sr ck-kernel)
-          (te sr ck-lists)
-          (te sr ck-predicates))
+          (sr ck)
+          (sr ck kernel)
+          (sr ck lists)
+          (sr ck predicates))
 
   (begin
 

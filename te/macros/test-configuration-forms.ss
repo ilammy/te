@@ -3,8 +3,8 @@
         (te conditions assertions)
         (te utils verify-test-case)
         (te macros configuration-forms)
-        (te sr ck)
-        (te sr ck-kernel))
+        (sr ck)
+        (sr ck kernel))
 
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ;
 

@@ -9,7 +9,7 @@
           $ensure-default-configuration)
 
   (import (scheme base)
-          (te sr ck))
+          (sr ck))
 
   (begin
 

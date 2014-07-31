@@ -5,8 +5,8 @@
         (te utils verify-test-case)
         (te macros parse-test-case-body)
         (te internal data)
-        (te sr ck)
-        (te sr ck-lists))
+        (sr ck)
+        (sr ck lists))
 
 (define (valid-test-case-body? test-case-body test-count)
   (and (list? test-case-body)

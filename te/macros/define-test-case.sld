@@ -5,7 +5,7 @@
   (import (scheme base)
           (te internal data)
           (te macros parse-test-case-body)
-          (te sr ck))
+          (sr ck))
 
   (begin
 

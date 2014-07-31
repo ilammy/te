@@ -6,9 +6,9 @@
           (te macros define-test)
           (te macros configuration-forms)
           (te internal data)
-          (te sr ck)
-          (te sr ck-lists)
-          (te sr ck-predicates))
+          (sr ck)
+          (sr ck lists)
+          (sr ck predicates))
 
   (begin
 

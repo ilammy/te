@@ -4,7 +4,7 @@
         (te utils verify-test-case)
         (te macros define-test)
         (te internal data)
-        (te sr ck))
+        (sr ck))
 
 (define-test-case (test-$define-test-form?)
 
