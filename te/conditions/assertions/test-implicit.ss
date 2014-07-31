@@ -1,6 +1,6 @@
 (import (scheme base)
         (scheme inexact)
-        (te)
+        (te base)
         (te utils verify-test-case)
         (te conditions assertions comparison)
         (te conditions assertions equivalence)

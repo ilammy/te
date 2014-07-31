@@ -1,6 +1,6 @@
 (import (scheme base)
         (only (srfi 1) any)
-        (te)
+        (te base)
         (te conditions assertions)
         (te conditions define-constraint)
         (te conditions constraints assert-that)

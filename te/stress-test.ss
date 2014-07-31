@@ -1,6 +1,6 @@
 (import (scheme base)
         (only (srfi 1) make-list)
-        (te)
+        (te base)
         (te utils verify-test-case))
 
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ;

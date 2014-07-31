@@ -1,6 +1,6 @@
 (import (scheme base)
         (only (srfi 1) every)
-        (te)
+        (te base)
         (te conditions assertions)
         (te utils verify-test-case)
         (te macros parse-test-case-body)

@@ -1,5 +1,5 @@
 (import (scheme base)
-        (te)
+        (te base)
         (te utils verify-test-case)
         (te conditions constraints assert-that)
         (te conditions constraints comparison)

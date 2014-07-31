@@ -1,4 +1,4 @@
-(define-library (te)
+(define-library (te base)
 
   (export define-test-case
           make-test)

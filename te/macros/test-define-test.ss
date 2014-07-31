@@ -1,5 +1,5 @@
 (import (scheme base)
-        (te)
+        (te base)
         (te conditions assertions)
         (te utils verify-test-case)
         (te macros define-test)

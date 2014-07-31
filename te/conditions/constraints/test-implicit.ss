@@ -1,6 +1,6 @@
 (import (scheme base)
         (scheme inexact)
-        (te)
+        (te base)
         (te utils verify-test-case)
         (te conditions constraints assert-that)
         (te conditions constraints implicit)
