@@ -4,7 +4,9 @@ Testing Essentials are a portable unit-testing framework for R7RS-compliant Sche
 
 ## Running
 
-For development I'm using R6RS Scheme run by (Dr)Racket. After the core features are done, backend will be switched to  [Chibi Scheme](//code.google.com/p/chibi-scheme) (the latest build from Mercurial trunk).
+For development I use [Chibi Scheme](//code.google.com/p/chibi-scheme) (the latest build from Mercurial trunk).
+
+Testing Essentials are written with [Syntax Rules](//github.com/ilammy/sr) and are self-tested.
 
 ## Licensing
 

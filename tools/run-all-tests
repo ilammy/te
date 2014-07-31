@@ -1,0 +1,24 @@
+#!/bin/bash
+
+cd /tmp/build
+
+count() { echo $#; }
+
+TESTS=$(find te -type f -name 'test-*.ss')
+TOTAL=$(count $TESTS)
+PASSED=0
+
+for test in $TESTS
+do
+    echo $test
+    if chibi-scheme $test
+    then
+        PASSED=$(expr $PASSED + 1)
+    fi
+done
+
+echo
+echo Done [ $PASSED / $TOTAL ]
+echo
+
+[ "$TOTAL" == "$PASSED" ]
