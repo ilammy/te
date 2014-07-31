@@ -1,0 +1,11 @@
+#!/bin/bash
+set -ex
+
+cd /tmp/scratch
+hg clone https://code.google.com/p/chibi-scheme/
+
+cd chibi-scheme
+make -j$(expr $(nproc) + 1)
+make test-all
+
+sudo make install

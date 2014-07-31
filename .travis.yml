@@ -1,0 +1,15 @@
+language: c
+
+before_install:
+  - mkdir -p /tmp/build
+  - mkdir -p /tmp/scratch
+
+install:
+  - ./tools/install-chibi
+  - ./tools/checkout-syntax-rules
+
+before_script:
+  - ./tools/setup-test-rig
+
+script:
+  - ./tools/run-all-tests

@@ -1,0 +1,7 @@
+#!/bin/bash
+set -ex
+
+cd /tmp/build
+
+cp -r $TRAVIS_BUILD_DIR/te .
+cp -r /tmp/scratch/sr/sr   .
