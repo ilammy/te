@@ -7,7 +7,9 @@
           (te macros configuration-forms)
           (te internal data)
           (sr ck)
-          (sr ck lists)
+          (sr ck filters)
+          (sr ck maps)
+          (sr ck searches)
           (sr ck predicates))
 
   (begin
