@@ -16,8 +16,8 @@
 
     (define-syntax $test-case-form?
       (syntax-rules (quote)
-        ((_ s 'x) ($ s ($or ($configuration-form? 'x)
-                            ($define-test-form?   'x) ))) ) )
+        ((_ s 'x) ($ s ($or '($configuration-form? 'x)
+                            '($define-test-form?   'x) ))) ) )
 
     (define-syntax $parse-test-case-body
       (syntax-rules (quote)
